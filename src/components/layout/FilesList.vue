@@ -48,8 +48,16 @@ function updateLRUCache(cache: Map<number, FilePage>, pageIndex: number, data: F
 }
 //提交搜索方法
 async function submitSearch(needPage: number) {
+    window.scrollTo({ top: 0, behavior: 'instant' })
     console.log('搜索条件:', fileSearchCondition);
     const currentCache = handleIsSearch(fileSearchCondition) ? searchCache.value : normalCache.value
+    //测试部分
+    if (handleIsSearch(fileSearchCondition)) {
+        console.log('这是一个搜索请求');
+    } else {
+        console.log('这不是一个搜索请求');
+    }
+    // 先检查缓存
     if (currentCache.has(needPage)) {
         console.log('从缓存中获取页码:', needPage);
         fp.value = currentCache.get(needPage)!;
@@ -90,74 +98,124 @@ function jumpPage(page: number) {
     currentPage.value = page;
     submitSearch(page);
 }
+// 页面滚动位置和分页信息
+const pageInfo = ref({
+    y: 0,
+    pageIndex: 0,
+    isD: false
+})
+const jumpToPage = ref<number>(1);
+const emit = defineEmits(['update:s', 'update:id']);
+// 跳转到文件详情页
+function goToFile(fileId: number) {
+    // 保存当前滚动位置和页码
+    pageInfo.value.y = window.scrollY || document.documentElement.scrollTop
+    pageInfo.value.pageIndex = currentPage.value
+    pageInfo.value.isD = true
+    const jsonStr = JSON.stringify(pageInfo.value);
+    localStorage.setItem('pageInfo', jsonStr);
+    //同步变量
+    console.log('跳转到文件详情页，文件ID:', fileId);
+    emit('update:s', true);
+    emit('update:id', fileId);
+}
 
-onMounted(() => {
-    submitSearch(currentPage.value);
+onMounted(async () => {
+    const jsonStr = localStorage.getItem('pageInfo') || '{}';
+    const parsed = JSON.parse(jsonStr);
+    pageInfo.value = parsed;
+    if (pageInfo.value.pageIndex !== 0 && pageInfo.value.pageIndex !== null && pageInfo.value.pageIndex !== undefined) {
+        if (pageInfo.value.isD) {
+            return
+        }
+        console.log("重返回列表:", pageInfo.value.pageIndex);
+        currentPage.value = pageInfo.value.pageIndex
+        await submitSearch(pageInfo.value.pageIndex)
+        window.scrollTo({
+            top: pageInfo.value.y,
+            behavior: 'instant'
+        })
+        localStorage.removeItem('pageInfo');
+    } else {
+        submitSearch(1);
+    }
 });
 </script>
 
 <template>
     <div class="list-box">
-        <h2 style="text-align: center; padding: 16px 0;">文件列表</h2>
-        <p style="text-align: center; color: #888;">这里将显示文件列表的内容。</p>
-        <div>
-            <!-- 搜索框 -->
-            <label for="searchTerm">搜索内容:</label>
-            <input id="searchTerm" v-model="fileSearchCondition.searchTerm" type="text" placeholder="请输入搜索关键词" />
+        <div class="fixed-component">
+            <div class="search-filters-row">
+                <div class="search-container">
+                    <!-- 搜索框 -->
+                    <input id="searchTerm" v-model="fileSearchCondition.searchTerm" type="text"
+                        placeholder="请输入搜索关键词" />
+                </div>
 
-            <!-- 资源类型选择框 -->
-            <label for="resourceType">资源类型:</label>
-            <select id="resourceType" v-model="fileSearchCondition.ResourceType">
-                <option v-for="(type, key) in ResourceTypes" :key="key" :value="type">
-                    {{ ResourceTypesLabels[key] }}
-                </option>
-            </select>
+                <div class="filters-container">
+                    <!-- 资源类型选择框 -->
+                    <label for="resourceType">资源类型:</label>
+                    <select id="resourceType" v-model="fileSearchCondition.ResourceType">
+                        <option v-for="(type, key) in ResourceTypes" :key="key" :value="type">
+                            {{ ResourceTypesLabels[key] }}
+                        </option>
+                    </select>
+                    <!-- 日期范围选择框 -->
+                    <label for="dateRange">日期范围:</label>
+                    <select id="dateRange" v-model="fileSearchCondition.dateRange">
+                        <option value="last24Hours">最近24小时</option>
+                        <option value="last7Days">最近7天</option>
+                        <option value="last30Days">最近30天</option>
+                        <option value="last90Days">最近90天</option>
+                        <option value="allTime">所有时间</option>
+                        <option value=null>默认</option>
+                    </select>
 
-            <!-- 日期范围选择框 -->
-            <label for="dateRange">日期范围:</label>
-            <select id="dateRange" v-model="fileSearchCondition.dateRange">
-                <option value="">选择日期范围</option>
-                <option value="last24Hours">最近24小时</option>
-                <option value="last7Days">最近7天</option>
-                <option value="last30Days">最近30天</option>
-                <option value="last90Days">最近90天</option>
-                <option value="allTime">所有时间</option>
-                <option value="">无时间范围</option>
-            </select>
-
-            <!-- 排序方式选择框 -->
-            <label for="order">排序方式:</label>
-            <select id="order" v-model="fileSearchCondition.order">
-                <option value="">选择排序方式</option>
-                <option value="newest">最新</option>
-                <option value="oldest">最旧</option>
-                <option value="mostCollected">收藏最多</option>
-                <option value="">无排序</option>
-            </select>
-
-            <div v-if="fp && fp.results && fp.results.length">
-                <ul>
-                    <li v-for="file in fp.results" :key="file.id">
-                        <strong>{{ file.name }}</strong>
-                        <span>（类型：{{ file.type }}）</span>
-                        <span> 上传日期：{{ file.uploadDate }}</span>
-                        <!-- 可根据实际字段补充更多信息 -->
-                    </li>
-                </ul>
+                    <!-- 排序方式选择框 -->
+                    <label for="order">排序方式:</label>
+                    <select id="order" v-model="fileSearchCondition.order">
+                        <option value="newest">最新</option>
+                        <option value="oldest">最旧</option>
+                        <option value="mostCollected">收藏最多</option>
+                        <option value=null>默认</option>
+                    </select>
+                </div>
             </div>
-            <div v-else>
-                <p style="color: #ccc;">暂无文件数据。</p>
-            </div>
-
-            <div>
-                <button @click="jumpPage(currentPage - 1)">上一页</button>
-                <span v-if="fp">当前页码: {{ currentPage }}</span>
-                <button @click="jumpPage(currentPage + 1)">下一页</button>
-                <span v-if="fp">总页数: {{ fp.totalPages }}</span>
-                <input type="number" v-model.number="currentPage" @change="jumpPage(currentPage)" />
-            </div>
-
         </div>
+        <!-- 展示区 -->
+        <div v-if="fp && fp.results && fp.results.length">
+            <table cellspacing="0" cellpadding="8" class="file-table">
+                <thead>
+                    <tr>
+                        <th>文件名</th>
+                        <th>类型</th>
+                        <th>描述</th>
+                        <th>上传日期</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="file in fp.results" :key="file.id" @click="goToFile(file.id)" class="file-table-tr">
+                        <td>{{ file.name }}</td>
+                        <td>{{ file.type }}</td>
+                        <td>{{ file.description }}</td>
+                        <td>{{ new Date(file.uploadDate).toLocaleDateString('zh-CN') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div v-else>
+            <p style="color: #ccc;">暂无文件数据。</p>
+        </div>
+        <!-- 跳转 -->
+        <div class="pagination-container">
+            <button @click="jumpPage(currentPage - 1)">上一页</button>
+            <span v-if="fp">当前页码: {{ currentPage }}</span>
+            <button @click="jumpPage(currentPage + 1)">下一页</button>
+            <span v-if="fp">总页数: {{ fp.totalPages }}</span>
+            <input type="number" v-model="jumpToPage" class="page-input" />
+            <button @click="jumpPage(jumpToPage)">跳转</button>
+        </div>
+
     </div>
 </template>
 
@@ -166,5 +224,146 @@ onMounted(() => {
     width: 100%;
     height: 100vh;
     background-color: #ffffff;
+}
+
+.fixed-component {
+    position: fixed;
+    /* 固定位置 */
+    top: 50px;
+    left: 0;
+    /* 确保紧贴左边 */
+    width: 100%;
+    /* 设置宽度 */
+    background-color: #fff;
+    /* 背景颜色 */
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    /* 添加阴影使其更显眼 */
+    z-index: 1000;
+    /* 确保该组件显示在页面上层 */
+    box-sizing: border-box;
+}
+
+.search-filters-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.search-container {
+    flex: 1;
+    text-align: center;
+    /* 搜索框居中 */
+}
+
+.search-container input {
+    width: 300px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.filters-container {
+    display: flex;
+    justify-content: flex-end;
+    /* 选择框靠右 */
+    gap: 15px;
+    /* 增加间距 */
+    align-items: center;
+}
+
+.filters-container label {
+    margin-right: 5px;
+    /* 标签和选择框之间的间距 */
+    white-space: nowrap;
+}
+
+.filters-container select {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 100px;
+}
+
+.file-table {
+    width: 80%;
+    /* 控制表格宽度 */
+    max-width: 1000px;
+    /* 控制表格最大宽度 */
+    height: 400px;
+    /* 控制表格的高度 */
+    overflow: auto;
+    /* 如果内容超过高度，显示滚动条 */
+    border-collapse: collapse;
+    /* 合并边框 */
+
+    /* 设置表格相对于父容器的位置 */
+    margin: 150px auto 20px;
+    /* 上边距100px避免被固定栏覆盖，下边20px，左右居中 */
+}
+
+
+.file-table th,
+.file-table td {
+    padding: 8px 12px;
+    /* 设置单元格内边距 */
+    text-align: left;
+    border-bottom: 1px dashed #ccc;
+    /* 虚线隔开每行 */
+}
+
+.file-table-tr:hover {
+    background-color: #f0f0f0;
+    /* 鼠标悬浮时改变背景色 */
+    transform: scale(1.05);
+    /* 放大效果 */
+}
+
+.file-table th {
+    background-color: #ffffff;
+    /* 设置表头的背景色 */
+    font-weight: bold;
+    /* 加粗表头文本 */
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    /* 水平居中 */
+    align-items: center;
+    /* 垂直居中 */
+    gap: 10px;
+    /* 按钮、页码和输入框之间的间距 */
+    margin-top: 50px;
+    /* 上方间距 */
+}
+
+.page-input {
+    width: 60px;
+    /* 调整输入框宽度 */
+    padding: 5px;
+    text-align: center;
+    /* 输入框内的文本居中 */
+    font-size: 14px;
+    /* 调整字体大小 */
+    border: 1px solid #ccc;
+    /* 输入框边框 */
+    border-radius: 4px;
+    /* 圆角边框 */
+}
+
+button {
+    padding: 5px 10px;
+    /* 按钮的内边距 */
+    font-size: 14px;
+    /* 调整字体大小 */
+    cursor: pointer;
+    /* 鼠标指针样式 */
+}
+
+span {
+    font-size: 14px;
+    /* 页码的字体大小 */
 }
 </style>

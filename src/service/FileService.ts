@@ -4,7 +4,7 @@ import type { FileRequestCondition, FilePage, FileSearchCondition } from "@/type
 // 判断是否为搜索
 export const handleIsSearch = (fsc: FileSearchCondition): boolean => {
     return (fsc.searchTerm !== null && fsc.searchTerm !== '')  ||
-        (fsc.ResourceType !== null && fsc.ResourceType !== '') ||
+        (fsc.ResourceType !== null) ||
         (fsc.dateRange !== null && fsc.dateRange !== '') ||
         (fsc.order !== null && fsc.order !== '');
 };

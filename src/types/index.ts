@@ -11,8 +11,7 @@ export interface DisplayFile {
   name: string
   type: string
   description: string
-  uploader: string
-  uploadDate: Date
+  uploadDate: string
 }
 
 export interface FilePage {
@@ -23,6 +22,7 @@ export interface FilePage {
 }
 
 export interface DetailFile extends DisplayFile {
+  uploader: string
   introduce: string
   imgs: string[]
   size: string
@@ -57,7 +57,7 @@ export const ResourceTypes = {
   PRESENTATION: 'presentation', // PPT、演示文档
   ARCHIVE: 'archive',       // 压缩包、合集
   OTHER: 'other',           // 其他
-  NULL: ''                // 所有类型
+  NULL: null                // 所有类型
 } as const;
 
 export type ResourceType = typeof ResourceTypes[keyof typeof ResourceTypes];

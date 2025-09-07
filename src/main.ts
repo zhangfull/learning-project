@@ -1,12 +1,12 @@
 import { createApp } from 'vue'
 import './style.css'
 import App from '@/App.vue'
+import FileDetail from '@/components/layout/FileDetail.vue'
 import router from '@/router'
 import { createPinia } from 'pinia'
 import { useErrorStore } from './stores/error'
 
 const app = createApp(App)
-
 app.config.errorHandler = (err, instance, info) => {
   console.error('全局捕获错误:', err)
   if (instance) {
