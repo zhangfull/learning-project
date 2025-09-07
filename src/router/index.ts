@@ -5,12 +5,17 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
         name: 'Home',
-        component: () => import('@/views/Home.vue'),
+        component: () => import('@/views/HomePage.vue'),
+    },
+    {
+        path: '/files',
+        name: 'FileList',
+        component: () => import('@/views/FileListPage.vue'),
     },
     {
         path: '/about',
         name: 'About',
-        component: () => import('@/views/About.vue'),
+        component: () => import('@/views/AboutPage.vue'),
     },
     // 可以继续添加更多路由
 ];

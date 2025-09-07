@@ -1,7 +1,7 @@
 <template>
-  <div class="notice-modal">
-    <div class="notice-modal-content">
-      <h2>!错误</h2>
+  <div class="modal">
+    <div class="modal-content">
+      <h2>公告</h2>
       <p><slot/></p>
       <button @click="close">关闭</button>
     </div>
@@ -9,29 +9,29 @@
 </template>
 
 <script setup lang="ts">
-import { useErrorStore } from '@/stores/error';
+import { defineEmits } from 'vue';
 
+const emit = defineEmits(['update:show']);
 
 function close() {
-    const errorStore = useErrorStore()
-    errorStore.clearError()
+  emit('update:show', false);
 }
 </script>
 
 <style scoped>
-.notice-modal {
+.modal {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.4);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9998;
+  z-index: 9996;
 }
-.notice-modal-content {
+.modal-content {
   background: white;
   padding: 20px;
   border-radius: 6px;
-  z-index: 9999;
+  z-index: 9997;
 }
 </style>

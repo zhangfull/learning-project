@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineEmits, defineProps } from 'vue'
+import { ref } from 'vue'
 import { handleLogin } from '@/service/LoginService';
 
 const props = defineProps<{
@@ -59,7 +59,7 @@ async function login() {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9998;
+  z-index: 9994;
 }
 
 .login-box {
@@ -68,7 +68,7 @@ async function login() {
   background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  z-index: 9999;
+  z-index: 9995;
   /* 高于 overlay */
 }
 </style>

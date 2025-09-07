@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import LoginModal from '@/components/dialog/LoginModal.vue';
 import { useUserStore } from '@/stores/user';
 import ErrorModal from '@/components/dialog/ErrorModal.vue';
 import { useErrorStore } from './stores/error';
+import NoticeModal from '@/components/dialog/NoticeModal.vue';
 
-const errorStore = useErrorStore()
+const errorStore = useErrorStore();
 
 const loginShow = ref(false);
 function openLogin() {
@@ -13,6 +14,11 @@ function openLogin() {
   loginShow.value = true;
 }
 
+const notice = ref<string | boolean>(false);
+
+onMounted(() => {
+  //notice.value = "欢迎使用我们的应用！";
+});
 
 // 测试部分
 const test_value = ref<string | null>('');
@@ -27,8 +33,9 @@ function test() {
   console.log(test_value.value);
 }
 const throwError = () => {
-  throw new Error('这是一个测试错误')
+  throw new Error('这是一个测试错误');
 }
+
 </script>
 
 <template>
@@ -38,8 +45,8 @@ const throwError = () => {
     <header class="navbar">
       <div class="logo">MyApp</div>
       <nav class="nav-links">
-        <a href="#">首页</a>
-        <a href="#">产品</a>
+        <a href="/">首页</a>
+        <a href="/files">列表</a>
         <a href="#">服务</a>
         <a href="#">关于我们</a>
         <a href="#" @click.prevent="openLogin">登录</a>
@@ -47,30 +54,22 @@ const throwError = () => {
     </header>
     <!-- 错误提示窗口 -->
     <ErrorModal v-if="errorStore.message">{{ errorStore.message }}</ErrorModal>
+    <!-- 公告窗口 -->
+    <NoticeModal v-if="notice" @update:show="val => notice = val">{{ notice }}</NoticeModal>
     <!-- 登陆弹窗 -->
     <div v-if="loginShow">
       <LoginModal :showLogin="loginShow" @update:showLogin="val => loginShow = val" />
     </div>
-    
+
+    <RouterView />
+
     <!-- 测试部分 -->
     <div>
       <h1>{{ test_value }}</h1>
       <button @click="test">测试</button>
       <button @click="throwError">抛出错误</button>
+      <button @click="notice = '这是一个新的公告！'">显示公告</button>
     </div>
-
-
-    <h1>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss</h1>
-    <h1>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss</h1>
-    <h1>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss</h1>
-    <h1>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss</h1>
-    <h1>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss</h1>
-    <h1>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss</h1>
-    <h1>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss</h1>
-    <h1>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss</h1>
-    <h1>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss</h1>
-    <h1>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss</h1>
-    <h1>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss</h1>
   </div>
 </template>
 
