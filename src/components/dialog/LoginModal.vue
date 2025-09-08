@@ -8,6 +8,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:showLogin', value: boolean): void
+  (e: 'loginSuccess'): void
 }>();
 
 function closeLoginDialog() {
@@ -22,6 +23,7 @@ async function login() {
   if (success) {
     hint.value = ''
     emit('update:showLogin', false)
+    emit('loginSuccess')
   } else {
     hint.value = message
   }

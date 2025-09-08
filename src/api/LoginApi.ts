@@ -34,3 +34,22 @@ export const loginRequest = async (email: string, password: string): Promise<[Us
         return [null, 2];
     }
 };
+
+export const autoLoginRequest = async (token: string): Promise<[UserInfo | null, number]> => {
+    // 模拟网络请求延迟
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    // 模拟登录逻辑
+    if (token === "abc123") {
+        const userInfo: UserInfo = {
+            username: "JohnDoe",
+            email: "user@example.com",
+            avatarUrl: "http://example.com/avatar.jpg",
+            token: "abc123",
+            free: ""
+        };
+        
+        return [userInfo, 0];
+    } else {
+        return [null, 1];
+    }
+};

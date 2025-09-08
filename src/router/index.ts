@@ -21,6 +21,11 @@ const routes: Array<RouteRecordRaw> = [
         path: '/file/:id',  // 通过动态路径参数传递 id
         name: 'FileDetail',  // 路由名称
         component: () => import('@/components/layout/FileDetail.vue')
+    },
+    {
+        path: '/upload',  // 通过动态路径参数传递 id
+        name: 'Upload',
+        component: () => import('@/views/UploadPage.vue')
     }
     // 可以继续添加更多路由
 ];

@@ -102,6 +102,7 @@ function jumpPage(page: number) {
 const pageInfo = ref({
     y: 0,
     pageIndex: 0,
+    id: 0,
     isD: false
 })
 const jumpToPage = ref<number>(1);
@@ -109,9 +110,10 @@ const emit = defineEmits(['update:s', 'update:id']);
 // 跳转到文件详情页
 function goToFile(fileId: number) {
     // 保存当前滚动位置和页码
-    pageInfo.value.y = window.scrollY || document.documentElement.scrollTop
-    pageInfo.value.pageIndex = currentPage.value
-    pageInfo.value.isD = true
+    pageInfo.value.y = window.scrollY || document.documentElement.scrollTop;
+    pageInfo.value.pageIndex = currentPage.value;
+    pageInfo.value.isD = true;
+    pageInfo.value.id = fileId;
     const jsonStr = JSON.stringify(pageInfo.value);
     localStorage.setItem('pageInfo', jsonStr);
     //同步变量

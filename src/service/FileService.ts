@@ -1,5 +1,5 @@
-import { getFileListRequest } from "@/api/FilesApi";
-import type { FileRequestCondition, FilePage, FileSearchCondition } from "@/types";
+import { getFileDetailRequest, getFileListRequest } from "@/api/FilesApi";
+import type { FileRequestCondition, FilePage, FileSearchCondition, DetailFile } from "@/types";
 
 // 判断是否为搜索
 export const handleIsSearch = (fsc: FileSearchCondition): boolean => {
@@ -24,6 +24,17 @@ export const handlePageAcquisition = async (frc: FileRequestCondition): Promise<
     }
     if (response.latestVersion === undefined || response.latestVersion === null) {
         throw new Error('获取文件列表失败');
+    }
+    return response;
+};
+ 
+export const handleFileDetail = async (id: number): Promise<DetailFile | null> => {
+    if (id < 1) {
+        throw new Error('无效的文件ID');
+    }
+    const response = await getFileDetailRequest(id);
+    if (response === null) {
+        throw new Error('获取文件详情失败');
     }
     return response;
 };

@@ -5,8 +5,15 @@ import { useUserStore } from '@/stores/user';
 import ErrorModal from '@/components/dialog/ErrorModal.vue';
 import { useErrorStore } from './stores/error';
 import NoticeModal from '@/components/dialog/NoticeModal.vue';
+import { handleAutoLogin } from './service/LoginService';
+import { ListFormat } from 'typescript';
+import type { UserInfo } from './types';
 
 const errorStore = useErrorStore();
+const notice = ref<string | boolean>(false);
+const userName = ref('');
+const isLogin = ref(false);
+const userStore = useUserStore();
 
 const loginShow = ref(false);
 function openLogin() {
@@ -14,10 +21,35 @@ function openLogin() {
   loginShow.value = true;
 }
 
-const notice = ref<string | boolean>(false);
+function handleLoginSuccess() {
+  console.log("主动登录成功");
+  isLogin.value = true;
+  userName.value = userStore.username;
+}
 
-onMounted(() => {
+onMounted(async () => {
   //notice.value = "欢迎使用我们的应用！";
+  userStore.loadTokenFromStorage();
+  if (userStore.token) {
+    // 自动登录
+    userStore.loadUserFromStorage();
+    if (userStore.isLogin === false) {
+      const [result, message] = await handleAutoLogin(userStore.token);
+      if (result) {
+        console.log(`自动登录成功，用户名：${userName.value}`);
+      } else {
+        userStore.logout();
+        throw new Error(message);
+      }
+      console.log(`用户已登录，用户名：${userName.value}`);
+    } else {
+      console.log("用户已登录，无需自动登录");
+    }
+    userName.value = userStore.username;
+    isLogin.value = true;
+  } else {
+    console.log("用户未登录");
+  }
 });
 
 // 测试部分
@@ -47,9 +79,10 @@ const throwError = () => {
       <nav class="nav-links">
         <a href="/">首页</a>
         <a href="/files">列表</a>
-        <a href="#">服务</a>
-        <a href="#">关于我们</a>
-        <a href="#" @click.prevent="openLogin">登录</a>
+        <a href="/upload">上传</a>
+        <a href="#" v-if="isLogin">{{ userName }}</a>
+        <a href="#" v-else @click.prevent="openLogin">登录</a>
+        <a href="#">关于</a>
       </nav>
     </header>
     <!-- 错误提示窗口 -->
@@ -57,9 +90,8 @@ const throwError = () => {
     <!-- 公告窗口 -->
     <NoticeModal v-if="notice" @update:show="val => notice = val">{{ notice }}</NoticeModal>
     <!-- 登陆弹窗 -->
-    <div v-if="loginShow">
-      <LoginModal :showLogin="loginShow" @update:showLogin="val => loginShow = val" />
-    </div>
+    <LoginModal v-if="loginShow" :showLogin="loginShow" @update:showLogin="val => loginShow = val"
+      @loginSuccess="handleLoginSuccess" />
 
     <RouterView />
 
