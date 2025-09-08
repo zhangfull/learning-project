@@ -1,6 +1,7 @@
 // stores/user.ts
 import type { UserInfo } from '@/types'
 import { defineStore } from 'pinia'
+import { handleAutoLogin } from '@/service/LoginService'
 
 interface UserState {
     username: string
@@ -47,13 +48,30 @@ export const useUserStore = defineStore('user', {
             }
         },
         loadUserFromStorage() {
-            const user = localStorage.getItem('user')
-            if (user) {
-                const userInfo = JSON.parse(user)
-                this.username = userInfo.username
-                this.isLogin = userInfo.isLogin
+            const userData = localStorage.getItem('user')
+            if (userData) {
+                const { username, isLogin } = JSON.parse(userData)
+                this.username = username
+                this.isLogin = isLogin
                 console.log("重新加载了用户信息");
-            }   
+            }
+        },
+        async autoLogin() {
+            this.loadTokenFromStorage();
+            if (!this.token) return false;
+            
+            this.loadUserFromStorage();
+            if (this.isLogin) return true;
+            
+            const [result, message] = await handleAutoLogin(this.token);
+            if (result) {
+                this.isLogin = true;
+                console.log("自动登录成功");
+                return true;
+            } else {
+                this.logout();
+                throw new Error(message);
+            }
         }
     }
 })

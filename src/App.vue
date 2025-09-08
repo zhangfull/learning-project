@@ -5,9 +5,6 @@ import { useUserStore } from '@/stores/user';
 import ErrorModal from '@/components/dialog/ErrorModal.vue';
 import { useErrorStore } from './stores/error';
 import NoticeModal from '@/components/dialog/NoticeModal.vue';
-import { handleAutoLogin } from './service/LoginService';
-import { ListFormat } from 'typescript';
-import type { UserInfo } from './types';
 
 const errorStore = useErrorStore();
 const notice = ref<string | boolean>(false);
@@ -29,33 +26,27 @@ function handleLoginSuccess() {
 
 onMounted(async () => {
   //notice.value = "欢迎使用我们的应用！";
-  userStore.loadTokenFromStorage();
-  if (userStore.token) {
-    // 自动登录
-    userStore.loadUserFromStorage();
-    if (userStore.isLogin === false) {
-      const [result, message] = await handleAutoLogin(userStore.token);
-      if (result) {
-        console.log(`自动登录成功，用户名：${userName.value}`);
-      } else {
-        userStore.logout();
-        throw new Error(message);
-      }
-      console.log(`用户已登录，用户名：${userName.value}`);
+  try {
+    const success = await userStore.autoLogin();
+    if (success) {
+      userName.value = userStore.username;
+      isLogin.value = true;
+      console.log("用户已登录，用户名：" + userStore.username);
     } else {
-      console.log("用户已登录，无需自动登录");
+      console.log("用户未登录");
     }
-    userName.value = userStore.username;
-    isLogin.value = true;
-  } else {
-    console.log("用户未登录");
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("自动登录失败:", error.message);
+    } else {
+      console.error("自动登录失败:", String(error));
+    }
   }
 });
 
 // 测试部分
 const test_value = ref<string | null>('');
 function test() {
-  const userStore = useUserStore();
   if (userStore.token) {
     test_value.value = userStore.token;
   } else {
