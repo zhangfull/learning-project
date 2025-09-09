@@ -47,7 +47,6 @@ export const autoLoginRequest = async (token: string): Promise<[UserInfo | null,
             token: "abc123",
             free: ""
         };
-        
         return [userInfo, 0];
     } else {
         return [null, 1];

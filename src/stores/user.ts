@@ -39,6 +39,7 @@ export const useUserStore = defineStore('user', {
             this.token = null
             this.isLogin = false
             localStorage.removeItem('token')
+            localStorage.removeItem('user')
         },
         loadTokenFromStorage() {
             const token = localStorage.getItem('token')
@@ -58,11 +59,10 @@ export const useUserStore = defineStore('user', {
         },
         async autoLogin() {
             this.loadTokenFromStorage();
-            if (!this.token) return false;
-            
-            this.loadUserFromStorage();
-            if (this.isLogin) return true;
-            
+            if (!this.token) {
+                this.logout();
+                return false;
+            }
             const [result, message] = await handleAutoLogin(this.token);
             if (result) {
                 this.isLogin = true;

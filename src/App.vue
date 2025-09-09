@@ -26,22 +26,16 @@ function handleLoginSuccess() {
 
 onMounted(async () => {
   //notice.value = "欢迎使用我们的应用！";
-  try {
-    const success = await userStore.autoLogin();
-    if (success) {
-      userName.value = userStore.username;
-      isLogin.value = true;
-      console.log("用户已登录，用户名：" + userStore.username);
-    } else {
-      console.log("用户未登录");
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error("自动登录失败:", error.message);
-    } else {
-      console.error("自动登录失败:", String(error));
-    }
+  const success = await userStore.autoLogin();
+  if (success) {
+    userName.value = userStore.username;
+    isLogin.value = true;
+    console.log("用户已登录，用户名：" + userStore.username);
+    return;
+  } else {
+    console.log("用户未登录");
   }
+  isLogin.value = false;
 });
 
 // 测试部分
@@ -71,7 +65,7 @@ const throwError = () => {
         <a href="/">首页</a>
         <a href="/files">列表</a>
         <a href="/upload">上传</a>
-        <a href="#" v-if="isLogin">{{ userName }}</a>
+        <a href="#" v-if="isLogin" class="special-link">{{ userName }}</a>
         <a href="#" v-else @click.prevent="openLogin">登录</a>
         <a href="#">关于</a>
       </nav>
@@ -142,6 +136,10 @@ const throwError = () => {
   color: #000000;
   text-decoration: none;
   font-size: 16px;
+}
+
+.nav-links a.special-link {
+  color: #829c24;
 }
 
 .nav-links a:hover {
