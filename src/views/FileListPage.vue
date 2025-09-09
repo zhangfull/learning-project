@@ -5,13 +5,13 @@ import { onMounted, ref } from 'vue';
 
 const isDetail = ref(false);
 const id = ref<number>(0);
-
 const pageInfo = ref({
   y: 0,
   pageIndex: 0,
   isD: false,
   id: 0
 })
+
 onMounted(() => {
   const jsonStr = localStorage.getItem('pageInfo') || '{}';
   const parsed = JSON.parse(jsonStr);

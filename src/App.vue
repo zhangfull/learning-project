@@ -25,7 +25,6 @@ function handleLoginSuccess() {
 }
 
 onMounted(async () => {
-  //notice.value = "欢迎使用我们的应用！";
   const success = await userStore.autoLogin();
   if (success) {
     userName.value = userStore.username;
@@ -41,13 +40,7 @@ onMounted(async () => {
 // 测试部分
 const test_value = ref<string | null>('');
 function test() {
-  if (userStore.token) {
-    test_value.value = userStore.token;
-  } else {
-    userStore.loadTokenFromStorage();
-    test_value.value = userStore.token;
-  }
-  console.log(test_value.value);
+  
 }
 const throwError = () => {
   throw new Error('这是一个测试错误');
