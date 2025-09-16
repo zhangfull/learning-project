@@ -6,7 +6,7 @@ export const handleLogin = async (email: string, password: string): Promise<[boo
     if (code === 0 && userInfo) {
         // 在这里可以处理 userInfo，存储到状态管理和本地存储
         const userStore = useUserStore();
-        userStore.setUser(userInfo);
+        await userStore.setUser(userInfo);
         return [true, "登录成功"];
     } else if (code === 1) {
         return [false, "密码错误"];
@@ -19,12 +19,12 @@ export const handleLogin = async (email: string, password: string): Promise<[boo
     }
 };
 
-export const handleAutoLogin = async (token: string): Promise<[boolean, string]> => {
-    const [userInfo, code] = await autoLoginRequest(token);
+export const handleAutoLogin = async (): Promise<[boolean, string]> => {
+    const [userInfo, code] = await autoLoginRequest();
     if (code === 0 && userInfo) {
         // 在这里可以处理 userInfo，存储到状态管理和本地存储
         const userStore = useUserStore();
-        userStore.setUser(userInfo);
+        await userStore.setUser(userInfo);
         return [true, "自动登录成功"];
     }
     else if (code === 1) {

@@ -2,33 +2,19 @@
 import { handleFileDetail } from '@/service/FileService';
 import type { DetailFile } from '@/types';
 import { onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router'
 
-
-const props = defineProps<{
-    id: number
-}>();
-const emit = defineEmits(['update:is']);
+const router = useRouter()
+const route = useRoute()
+let id = Number(route.params.id)
 // 返回列表
 function goBack() {
-    const pageInfo = ref({
-        y: 0,
-        pageIndex: 0,
-        isD: false
-    })
-    const jsonStr1 = localStorage.getItem('pageInfo') || 'null';
-    if (jsonStr1 !== 'null') {
-        const parsed = JSON.parse(jsonStr1);
-        pageInfo.value = parsed;
-        pageInfo.value.isD = false;
-        const jsonStr2 = JSON.stringify(pageInfo.value);
-        localStorage.setItem('pageInfo', jsonStr2);
-    }
-    emit('update:is', false);
+    router.push({ path: '/files', query: { from: 'detail' } })
 }
     
 const fileDetail = ref<DetailFile | null>(null);
 onMounted(() => {
-    handleFileDetail(props.id).then(detail => {
+    handleFileDetail(id).then(detail => {
         fileDetail.value = detail;
     });
 })

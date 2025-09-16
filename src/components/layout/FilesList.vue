@@ -2,11 +2,14 @@
 import { handlePageAcquisition, handleIsSearch } from '@/service/FileService';
 import { ResourceTypes, type FilePage, type FileRequestCondition, type FileSearchCondition } from '@/types';
 import { onMounted, reactive, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
+const router = useRouter()
+const route = useRoute()
 let timer: number | null = null
-const version = ref(0);
-const currentPage = ref(1);
-const fp = ref<FilePage | null>(null);  // 文件列表
+const version = ref(0)
+const currentPage = ref(1)
+const fp = ref<FilePage | null>(null)  // 文件列表
 // 创建响应式的筛选条件
 const fileSearchCondition = reactive<FileSearchCondition>({
     searchTerm: null,
@@ -49,37 +52,37 @@ function updateLRUCache(cache: Map<number, FilePage>, pageIndex: number, data: F
 //提交搜索方法
 async function submitSearch(needPage: number) {
     window.scrollTo({ top: 0, behavior: 'instant' })
-    console.log('搜索条件:', fileSearchCondition);
+    console.log('搜索条件:', fileSearchCondition)
     const currentCache = handleIsSearch(fileSearchCondition) ? searchCache.value : normalCache.value
     //测试部分
     if (handleIsSearch(fileSearchCondition)) {
-        console.log('这是一个搜索请求');
+        console.log('这是一个搜索请求')
     } else {
-        console.log('这不是一个搜索请求');
+        console.log('这不是一个搜索请求')
     }
     // 先检查缓存
     if (currentCache.has(needPage)) {
-        console.log('从缓存中获取页码:', needPage);
-        fp.value = currentCache.get(needPage)!;
+        console.log('从缓存中获取页码:', needPage)
+        fp.value = currentCache.get(needPage)!
     } else {
-        console.log('从服务器获取页码:', needPage);
+        console.log('从服务器获取页码:', needPage)
         const frc: FileRequestCondition = {
             needPage: needPage,
             currentVersion: version.value,
             fileSearchCondition: { ...fileSearchCondition }
         };
-        fp.value = await handlePageAcquisition(frc);
+        fp.value = await handlePageAcquisition(frc)
         if (fp.value && fp.value.latestVersion !== version.value) {
-            console.log('旧版本为:', version.value);
-            version.value = fp.value.latestVersion;
-            console.log('版本更新为:', version.value);
+            console.log('旧版本为:', version.value)
+            version.value = fp.value.latestVersion
+            console.log('版本更新为:', version.value)
             // 清除缓存
             searchCache.value.clear()
             normalCache.value.clear()
         }
     }
-    updateLRUCache(currentCache, needPage, fp.value!);
-    return;
+    updateLRUCache(currentCache, needPage, fp.value!)
+    return
 }
 // 监视筛选条件变化进行自动搜索
 watch(fileSearchCondition, (newVal) => {
@@ -87,60 +90,55 @@ watch(fileSearchCondition, (newVal) => {
     console.log('搜索条件变化后:', newVal);
     timer = window.setTimeout(() => {
         searchCache.value.clear()
-        currentPage.value = 1;
-        submitSearch(1);
+        currentPage.value = 1
+        submitSearch(1)
     }, 1000)
 })
 // 页码跳转和上下页
 function jumpPage(page: number) {
-    if (page < 1) return;
-    if (page > fp.value!.totalPages) return;
-    currentPage.value = page;
-    submitSearch(page);
+    if (page < 1) return
+    if (page > fp.value!.totalPages) return
+    currentPage.value = page
+    submitSearch(page)
 }
 // 页面滚动位置和分页信息
 const pageInfo = ref({
     y: 0,
     pageIndex: 0,
-    id: 0,
-    isD: false
 })
-const jumpToPage = ref<number>(1);
-const emit = defineEmits(['update:s', 'update:id']);
+const jumpToPage = ref<number>(1)
 // 跳转到文件详情页
 function goToFile(fileId: number) {
     // 保存当前滚动位置和页码
-    pageInfo.value.y = window.scrollY || document.documentElement.scrollTop;
-    pageInfo.value.pageIndex = currentPage.value;
-    pageInfo.value.isD = true;
-    pageInfo.value.id = fileId;
-    const jsonStr = JSON.stringify(pageInfo.value);
-    localStorage.setItem('pageInfo', jsonStr);
+    pageInfo.value.y = window.scrollY || document.documentElement.scrollTop
+    pageInfo.value.pageIndex = currentPage.value
+    const jsonStr = JSON.stringify(pageInfo.value)
+    localStorage.setItem('pageInfo', jsonStr)
     //同步变量
-    console.log('跳转到文件详情页，文件ID:', fileId);
-    emit('update:s', true);
-    emit('update:id', fileId);
+    console.log('跳转到文件详情页，文件ID:', fileId)
+    router.push({ name: 'detail', params: { id: fileId } })
 }
 
 onMounted(async () => {
-    const jsonStr = localStorage.getItem('pageInfo') || '{}';
-    const parsed = JSON.parse(jsonStr);
-    pageInfo.value = parsed;
+    const jsonStr = localStorage.getItem('pageInfo') || '{}'
+    const parsed = JSON.parse(jsonStr)
+    pageInfo.value = parsed
     if (pageInfo.value.pageIndex !== 0 && pageInfo.value.pageIndex !== null && pageInfo.value.pageIndex !== undefined) {
-        if (pageInfo.value.isD) {
+        if (route.query.from === 'detail') {
+            router.replace({ path: '/files' })
+            console.log("重返回列表:", pageInfo.value.pageIndex)
+            currentPage.value = pageInfo.value.pageIndex
+            await submitSearch(pageInfo.value.pageIndex)
+            localStorage.removeItem('pageInfo')
+            window.scrollTo({
+                top: pageInfo.value.y,
+                behavior: 'instant'
+            })
             return
         }
-        console.log("重返回列表:", pageInfo.value.pageIndex);
-        currentPage.value = pageInfo.value.pageIndex
-        await submitSearch(pageInfo.value.pageIndex)
-        window.scrollTo({
-            top: pageInfo.value.y,
-            behavior: 'instant'
-        })
-        localStorage.removeItem('pageInfo');
-    } else {
-        submitSearch(1);
     }
+    localStorage.removeItem('pageInfo')
+    submitSearch(1);
 });
 </script>
 
@@ -217,7 +215,6 @@ onMounted(async () => {
             <input type="number" v-model="jumpToPage" class="page-input" />
             <button @click="jumpPage(jumpToPage)">跳转</button>
         </div>
-
     </div>
 </template>
 

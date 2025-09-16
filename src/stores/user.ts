@@ -2,11 +2,13 @@
 import type { UserInfo } from '@/types'
 import { defineStore } from 'pinia'
 import { handleAutoLogin } from '@/service/LoginService'
+import { handleGetImg } from '@/service/ImgService'
 
 interface UserState {
-    username: string
+    userName: string
     email: string
     avatarUrl: string
+    avatarBase64: string
     token: string | null
     isLogin: boolean
     expireTime: Date
@@ -14,33 +16,37 @@ interface UserState {
 
 export const useUserStore = defineStore('user', {
     state: (): UserState => ({
-        username: '',
+        userName: '',
         email: '',
         avatarUrl: '',
+        avatarBase64: '',
         token: null,
         isLogin: false,
         expireTime: new Date()
     }),
     actions: {
-        setUser(userInfo: UserInfo) {
-            this.username = userInfo.username
+        async setUser(userInfo: UserInfo) {
+            this.userName = userInfo.userName
             this.email = userInfo.email
             this.avatarUrl = userInfo.avatarUrl
+            this.avatarBase64 = await handleGetImg(this.avatarUrl)  
             this.isLogin = true
             // 持久化 token 到 localStorage
             localStorage.setItem('user', JSON.stringify({
-                username: userInfo.username,
+                userName: userInfo.userName,
+                avatarUrl: userInfo.avatarUrl,
                 isLogin: true,
                 expireTime: new Date((new Date()).getTime() + 604800000)// 默认一周后过期
             }))
             localStorage.setItem('token', userInfo.token)
         },
         logout() {
-            this.username = ''
+            this.userName = ''
             this.email = ''
             this.avatarUrl = ''
             this.token = null
             this.isLogin = false
+            this.avatarBase64 = ''
             localStorage.removeItem('token')
             localStorage.removeItem('user')
         },
@@ -54,9 +60,10 @@ export const useUserStore = defineStore('user', {
         loadUserFromStorage() {
             const userData = localStorage.getItem('user')
             if (userData) {
-                const { username, isLogin, expireTime } = JSON.parse(userData)
-                this.username = username
+                const { userName, avatarUrl, isLogin, expireTime } = JSON.parse(userData)
+                this.userName = userName
                 this.isLogin = isLogin
+                this.avatarUrl = avatarUrl
                 this.expireTime = expireTime
                 console.log("重新加载了用户信息");
             }
@@ -72,18 +79,21 @@ export const useUserStore = defineStore('user', {
             this.loadUserFromStorage();
             if (new Date() < new Date(this.expireTime) && this.isLogin) {
                 console.log("本地登录有效");
-                return true;
-            }
-            // 尝试自动登录
-            const [result, message] = await handleAutoLogin(this.token);
-            if (result) {
-                this.isLogin = true;
-                console.log("自动登录成功");
+                this.avatarBase64 = await handleGetImg(this.avatarUrl)
                 return true;
             } else {
-                this.logout();
-                throw new Error(message);
+                // 尝试自动登录
+                const [result, message] = await handleAutoLogin();
+                if (result) {
+                    this.isLogin = true;
+                    console.log("自动登录成功");
+                    return true;
+                } else {
+                    this.logout();
+                    throw new Error(message);
+                }
             }
+
         }
     }
 })

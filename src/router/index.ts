@@ -18,9 +18,9 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/AboutPage.vue'),
     },
     {
-        path: '/file/:id',  // 通过动态路径参数传递 id
-        name: 'FileDetail',  // 路由名称
-        component: () => import('@/components/layout/FileDetail.vue')
+        path: '/detail/:id',
+        name: 'detail',
+        component: () => import('@/views/FileDetailPage.vue')
     },
     {
         path: '/upload',  // 通过动态路径参数传递 id

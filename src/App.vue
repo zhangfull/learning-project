@@ -5,45 +5,50 @@ import { useUserStore } from '@/stores/user';
 import ErrorModal from '@/components/dialog/ErrorModal.vue';
 import { useErrorStore } from './stores/error';
 import NoticeModal from '@/components/dialog/NoticeModal.vue';
+import { handleGetImg } from './service/ImgService';
+import router from './router';
 
-const errorStore = useErrorStore();
-const notice = ref<string | boolean>(false);
-const userName = ref('');
-const isLogin = ref(false);
-const userStore = useUserStore();
+const errorStore = useErrorStore()
+const notice = ref<string | boolean>(false)
+const userName = ref('')
+const avatarBase64 = ref('')
+const isLogin = ref(false)
+const userStore = useUserStore()
 
-const loginShow = ref(false);
+const loginShow = ref(false)
 function openLogin() {
-  console.log("点击了登录");
-  loginShow.value = true;
+  console.log("点击了登录")
+  loginShow.value = true
 }
 
 function handleLoginSuccess() {
-  console.log("主动登录成功");
-  isLogin.value = true;
-  userName.value = userStore.username;
+  console.log("主动登录成功")
+  isLogin.value = true
+  userName.value = userStore.userName
+  avatarBase64.value = userStore.avatarBase64
+  console.log(avatarBase64.value);
 }
 
 onMounted(async () => {
-  const success = await userStore.autoLogin();
+  const success = await userStore.autoLogin()
   if (success) {
-    userName.value = userStore.username;
-    isLogin.value = true;
-    console.log("用户已登录，用户名：" + userStore.username);
-    return;
-  } else {
-    console.log("用户未登录");
+    userName.value = userStore.userName
+    isLogin.value = true
+    avatarBase64.value = userStore.avatarBase64
+    console.log("用户已登录，用户名：" + userStore.userName)
+    return
   }
-  isLogin.value = false;
+  console.log("用户未登录")
+  isLogin.value = false
 });
 
 // 测试部分
-const test_value = ref<string | null>('');
+const test_value = ref<string | null>('')
 function test() {
-  
+
 }
 const throwError = () => {
-  throw new Error('这是一个测试错误');
+  throw new Error('这是一个测试错误')
 }
 
 </script>
@@ -55,13 +60,15 @@ const throwError = () => {
     <header class="navbar">
       <div class="logo">MyApp</div>
       <nav class="nav-links">
-        <a href="/">首页</a>
-        <a href="/files">列表</a>
-        <a href="/upload">上传</a>
-        <a href="#" v-if="isLogin" class="special-link">{{ userName }}</a>
-        <a href="#" v-else @click.prevent="openLogin">登录</a>
-        <a href="#">关于</a>
+        <router-link to="/">首页</router-link>
+        <router-link to="/files">列表</router-link>
+        <router-link to="/upload">上传</router-link>
+        <router-link to="/about">关于</router-link>
+        <a href="#" v-if="!isLogin" @click.prevent="openLogin">登录</a>
       </nav>
+      <div class="user-section" v-if="isLogin">
+        <a href="#" class="special-link"><img class="avatar" :src=avatarBase64 alt="用户头像" /></a>
+      </div>
     </header>
     <!-- 错误提示窗口 -->
     <ErrorModal v-if="errorStore.message">{{ errorStore.message }}</ErrorModal>
@@ -100,7 +107,6 @@ const throwError = () => {
   background: #c1ddfa;
   color: #fff;
   display: flex;
-  align-items: center;
   justify-content: space-between;
   padding: 0 24px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -117,25 +123,33 @@ const throwError = () => {
 .nav-links {
   display: flex;
   gap: 24px;
-  /* 减小间距 */
-  padding-right: 0;
-  /* 移除右侧padding，使用flex布局控制 */
-  justify-content: flex-end;
-  margin-right: 96px;
-  /* 控制整体离右边 24px */
+  margin-left: auto;
+  /* 自动推到右侧 */
+  padding-right: 40px;
 }
 
-.nav-links a {
+
+.nav-links a,
+.nav-links .router-link-active,
+.nav-links .router-link-exact-active {
   color: #000000;
   text-decoration: none;
   font-size: 16px;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
-.nav-links a.special-link {
+.nav-links a.special-link,
+.nav-links .router-link-active.special-link,
+.nav-links .router-link-exact-active.special-link {
   color: #829c24;
+  padding: 0 8px;
 }
 
-.nav-links a:hover {
+.nav-links a:hover,
+.nav-links .router-link-active:hover,
+.nav-links .router-link-exact-active:hover {
   color: #1abc9c;
 }
 
@@ -151,5 +165,25 @@ const throwError = () => {
 
 .actions button:hover {
   background: #16a085;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+}
+
+.user-section {
+  display: flex;
+  margin-right: 50px;
+  align-items: center;
+  height: 100%;
 }
 </style>

@@ -1,54 +1,33 @@
 import type { UserInfo } from "@/types";
+import axiosInstance from "@/utils/axiosInstance";
 
 export const loginRequest = async (email: string, password: string): Promise<[UserInfo | null, number]> => {
-    // 模拟网络请求延迟
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // 模拟登录逻辑
-    if (email === "123@qq.com") {
-        const userInfo: UserInfo = {
-            username: "",
-                email: "",
-                avatarUrl: "",
-                token: "",
-                free: "请5秒后再次登陆"
-        };
-        return [userInfo, 3];
-    }
-    if (email === "user@example.com") {
-        // Handle successful login
-        if (password === "password") {
-            const userInfo: UserInfo = {
-                username: "JohnDoe",
-                email: "user@example.com",
-                avatarUrl: "http://example.com/avatar.jpg",
-                token: "abc123",
-                free: ""
-            };
-            return [userInfo, 0];
-        } else {
-            // Handle failed login
-            return [null, 1];
-        }
-    } else {
-        // Handle failed login
-        return [null, 2];
+    console.log(`API主动登陆 ${email}...`)
+    try {
+        const response = await axiosInstance.post('/api/login/active',
+            { email, password }
+        )
+        console.log("后端返回的信息码：", response.data.code)              //调试
+        console.log("后端返回的数据：", response.data.data)              //调试
+        return [response.data.data, response.data.code]
+    } catch (error) {
+        // 取消上传失败，捕获异常
+        console.error('获取资源数据失败:', error)
+        throw new Error('网络错误')
     }
 };
 
-export const autoLoginRequest = async (token: string): Promise<[UserInfo | null, number]> => {
-    // 模拟网络请求延迟
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // 模拟登录逻辑
-    if (token === "abc123") {
-        const userInfo: UserInfo = {
-            username: "JohnDoe",
-            email: "user@example.com",
-            avatarUrl: "http://example.com/avatar.jpg",
-            token: "abc123",
-            free: ""
-        };
-        return [userInfo, 0];
-    } else {
-        return [null, 1];
+export const autoLoginRequest = async (): Promise<[UserInfo | null, number]> => {
+    try {
+        const response = await axiosInstance.post(
+            '/api/login/auto',
+            {} // 请求体为空对象
+        )
+        console.log("后端返回的信息码：", response.data.code)
+        console.log("后端返回的数据：", response.data.data)
+        return [response.data.data, 0]
+    } catch (error) {
+        console.error('获取资源数据失败:', error)
+        throw new Error('网络错误')
     }
-};
+}

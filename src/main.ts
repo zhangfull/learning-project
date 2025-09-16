@@ -1,7 +1,6 @@
 import { createApp } from 'vue'
 import './style.css'
 import App from '@/App.vue'
-import FileDetail from '@/components/layout/FileDetail.vue'
 import router from '@/router'
 import { createPinia } from 'pinia'
 import { useErrorStore } from './stores/error'
@@ -19,5 +18,5 @@ app.config.errorHandler = (err, instance, info) => {
   // 可以发送到日志服务或后端
 }
 
-const pinia = createPinia()
+const pinia = createPinia();
 app.use(router).use(pinia).mount('#app')

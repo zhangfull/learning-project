@@ -9,5 +9,22 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, 'src')  // 关键：@ 指向 src
     }
+  },
+  server: {
+  proxy: {
+    '/api': {
+      target: 'http://localhost:8080',
+      changeOrigin: true,
+      rewrite: path => path.replace(/^\/api/, ''),
+      configure: (proxy) => {
+        proxy.on('proxyReq', (proxyReq, req, res) => {
+          if (req.headers.authorization) {
+            proxyReq.setHeader('Authorization', req.headers.authorization);
+          }
+        });
+      }
+    }
   }
+}
+
 })

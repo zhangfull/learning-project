@@ -1,9 +1,9 @@
 export interface UserInfo {
-  username: string
+  userName: string
   email: string
   avatarUrl: string
   token: string
-  free: string
+  free: string | null
 }
 
 export interface DisplayFile {

@@ -9,7 +9,6 @@
 </template>
 
 <script setup lang="ts">
-
 const emit = defineEmits(['update:show']);
 function close() {
   emit('update:show', false);
