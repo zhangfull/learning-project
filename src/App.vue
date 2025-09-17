@@ -26,7 +26,6 @@ function handleLoginSuccess() {
   isLogin.value = true
   userName.value = userStore.userName
   avatarBase64.value = userStore.avatarBase64
-  console.log(avatarBase64.value);
 }
 
 onMounted(async () => {
@@ -60,14 +59,15 @@ const throwError = () => {
     <header class="navbar">
       <div class="logo">MyApp</div>
       <nav class="nav-links">
-        <router-link to="/">首页</router-link>
-        <router-link to="/files">列表</router-link>
-        <router-link to="/upload">上传</router-link>
-        <router-link to="/about">关于</router-link>
+        <router-link to="/" >首页</router-link>
+        <router-link to="/files" >列表</router-link>
+        <router-link to="/upload" >上传</router-link>
+        <router-link to="/about" >关于</router-link>
         <a href="#" v-if="!isLogin" @click.prevent="openLogin">登录</a>
       </nav>
       <div class="user-section" v-if="isLogin">
-        <a href="#" class="special-link"><img class="avatar" :src=avatarBase64 alt="用户头像" /></a>
+        <router-link to="/individual" class="special-link"><img class="avatar" :src=avatarBase64 alt="用户头像"
+            exact-active-class="active" /></router-link>
       </div>
     </header>
     <!-- 错误提示窗口 -->
@@ -75,8 +75,7 @@ const throwError = () => {
     <!-- 公告窗口 -->
     <NoticeModal v-if="notice" @update:show="val => notice = val">{{ notice }}</NoticeModal>
     <!-- 登陆弹窗 -->
-    <LoginModal v-if="loginShow" :showLogin="loginShow" @update:showLogin="val => loginShow = val"
-      @loginSuccess="handleLoginSuccess" />
+    <LoginModal v-if="loginShow" @update:showLogin="val => loginShow = val" @loginSuccess="handleLoginSuccess" />
 
     <RouterView />
 
@@ -130,8 +129,7 @@ const throwError = () => {
 
 
 .nav-links a,
-.nav-links .router-link-active,
-.nav-links .router-link-exact-active {
+.nav-links .router-link-active {
   color: #000000;
   text-decoration: none;
   font-size: 16px;
@@ -185,5 +183,10 @@ const throwError = () => {
   margin-right: 50px;
   align-items: center;
   height: 100%;
+}
+
+.nav-links .router-link-exact-active {
+  color: #9f584d;
+  font-weight: bold;
 }
 </style>

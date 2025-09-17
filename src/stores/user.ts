@@ -7,6 +7,7 @@ import { handleGetImg } from '@/service/ImgService'
 interface UserState {
     userName: string
     email: string
+    uid: string
     avatarUrl: string
     avatarBase64: string
     token: string | null
@@ -18,6 +19,7 @@ export const useUserStore = defineStore('user', {
     state: (): UserState => ({
         userName: '',
         email: '',
+        uid: '',
         avatarUrl: '',
         avatarBase64: '',
         token: null,
@@ -28,6 +30,7 @@ export const useUserStore = defineStore('user', {
         async setUser(userInfo: UserInfo) {
             this.userName = userInfo.userName
             this.email = userInfo.email
+            this.uid = userInfo.uid
             this.avatarUrl = userInfo.avatarUrl
             this.avatarBase64 = await handleGetImg(this.avatarUrl)  
             this.isLogin = true
@@ -43,6 +46,7 @@ export const useUserStore = defineStore('user', {
         logout() {
             this.userName = ''
             this.email = ''
+            this.uid = ''
             this.avatarUrl = ''
             this.token = null
             this.isLogin = false

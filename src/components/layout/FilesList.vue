@@ -191,6 +191,7 @@ onMounted(async () => {
                         <th>类型</th>
                         <th>描述</th>
                         <th>上传日期</th>
+                        <th>收藏量</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -199,6 +200,7 @@ onMounted(async () => {
                         <td>{{ file.type }}</td>
                         <td>{{ file.description }}</td>
                         <td>{{ new Date(file.uploadDate).toLocaleDateString('zh-CN') }}</td>
+                        <td>{{ file.collectionCount }}</td>
                     </tr>
                 </tbody>
             </table>

@@ -1,11 +1,11 @@
-import type { UserInfo } from "@/types";
+import type { RegisterInfo, UserInfo } from "@/types";
 import axiosInstance from "@/utils/axiosInstance";
 
-export const loginRequest = async (email: string, password: string): Promise<[UserInfo | null, number]> => {
-    console.log(`API主动登陆 ${email}...`)
+export const loginRequest = async (emailOrUid: string, password: string): Promise<[UserInfo | null, number]> => {
+    console.log(`API主动登陆 ${emailOrUid}...`)
     try {
         const response = await axiosInstance.post('/api/login/active',
-            { email, password }
+            { emailOrUid, password }
         )
         console.log("后端返回的信息码：", response.data.code)              //调试
         console.log("后端返回的数据：", response.data.data)              //调试
@@ -19,13 +19,27 @@ export const loginRequest = async (email: string, password: string): Promise<[Us
 
 export const autoLoginRequest = async (): Promise<[UserInfo | null, number]> => {
     try {
-        const response = await axiosInstance.post(
-            '/api/login/auto',
-            {} // 请求体为空对象
+        const response = await axiosInstance.get(
+            '/api/login/auto'
         )
         console.log("后端返回的信息码：", response.data.code)
         console.log("后端返回的数据：", response.data.data)
-        return [response.data.data, 0]
+        return [response.data.data, response.data.code]
+    } catch (error) {
+        console.error('获取资源数据失败:', error)
+        throw new Error('网络错误')
+    }
+}
+
+export const registerRequest = async (userInfo: RegisterInfo): Promise<number> => {
+    try {
+        const response = await axiosInstance.post(
+            '/api/login/register',
+            userInfo
+        )
+        console.log("后端返回的信息码：", response.data.code)
+        console.log("后端返回的数据：", response.data.data)
+        return 0
     } catch (error) {
         console.error('获取资源数据失败:', error)
         throw new Error('网络错误')

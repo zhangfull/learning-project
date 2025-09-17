@@ -1,9 +1,29 @@
 export interface UserInfo {
   userName: string
   email: string
+  uid: string
   avatarUrl: string
   token: string
   free: string | null
+}
+
+export interface PersonalInfo {
+  userName: string
+  email: string
+  uid: string
+  avatarUrl: string
+  registrationDate: string
+  authority: string
+  briefIntroduction: string
+  followersCount: number
+  myFollowersCount: number
+}
+
+export interface RegisterInfo {
+  userName: string
+  email: string
+  password: string
+  confirmPassword: string
 }
 
 export interface DisplayFile {
@@ -12,6 +32,7 @@ export interface DisplayFile {
   type: string
   description: string
   uploadDate: string
+  collectionCount: number
 }
 
 export interface FilePage {
@@ -27,7 +48,6 @@ export interface DetailFile extends DisplayFile {
   imgs: string[]
   size: string
   downloadUrl: string
-  collectionCount: number
   tags: string[]
 }
 
