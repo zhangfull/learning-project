@@ -40,6 +40,7 @@ export interface FilePage {
   currentPage: number;
   totalPages: number;
   latestVersion: number;
+  pageSize: number;
   results: DisplayFile[];
 }
 

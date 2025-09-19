@@ -30,14 +30,15 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/individual',
         name: 'Individual',
-        component: () => import('@/views/IndividualPage.vue'),
+        component: () => import('@/views/myInfo/IndividualPage.vue'),
         children: [
             { path: '', name: 'IndividualHome', redirect: '/individual/information' },
-            { path: 'information', name: 'IndividualInformation', component: () => import('@/views/MyInformation.vue') },
-            { path: 'followers', name: 'IndividualFollowers', component: () => import('@/views/Followers.vue') },
-            { path: 'favorite', name: 'IndividualFavorite', component: () => import('@/views/MyFavorite.vue') },
-            { path: 'browsing-history', name: 'IndividualBrowsingHistory', component: () => import('@/views/BrowsingHistory.vue') },
-            { path: 'upload', name: 'IndividualUpload', component: () => import('@/views/MyUpload.vue') }
+            { path: 'information', name: 'IndividualInformation', component: () => import('@/views/myInfo/MyInformation.vue') },
+            { path: 'followers', name: 'IndividualFollowers', component: () => import('@/views/myInfo/Followers.vue') },
+            { path: 'favorite', name: 'IndividualFavorite', component: () => import('@/views/myInfo/MyFavorite.vue') },
+            { path: 'browsing-history', name: 'IndividualBrowsingHistory', component: () => import('@/views/myInfo/BrowsingHistory.vue') },
+            { path: 'upload', name: 'IndividualUpload', component: () => import('@/views/myInfo/MyUpload.vue') },
+            { path: 'update-avatar', name: 'UpdateAvatar', component: () => import('@/views/myInfo/UpdateAvatar.vue') },
         ]
     }
     // 可以继续添加更多路由

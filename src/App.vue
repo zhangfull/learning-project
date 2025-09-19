@@ -5,8 +5,6 @@ import { useUserStore } from '@/stores/user';
 import ErrorModal from '@/components/dialog/ErrorModal.vue';
 import { useErrorStore } from './stores/error';
 import NoticeModal from '@/components/dialog/NoticeModal.vue';
-import { handleGetImg } from './service/ImgService';
-import router from './router';
 
 const errorStore = useErrorStore()
 const notice = ref<string | boolean>(false)
@@ -41,15 +39,6 @@ onMounted(async () => {
   isLogin.value = false
 });
 
-// 测试部分
-const test_value = ref<string | null>('')
-function test() {
-
-}
-const throwError = () => {
-  throw new Error('这是一个测试错误')
-}
-
 </script>
 
 <template>
@@ -59,10 +48,10 @@ const throwError = () => {
     <header class="navbar">
       <div class="logo">MyApp</div>
       <nav class="nav-links">
-        <router-link to="/" >首页</router-link>
-        <router-link to="/files" >列表</router-link>
+        <router-link to="/">首页</router-link>
+        <router-link to="/files">列表</router-link>
         <router-link to="/upload" v-if="isLogin">上传</router-link>
-        <router-link to="/about" >关于</router-link>
+        <router-link to="/about">关于</router-link>
         <a href="#" v-if="!isLogin" @click.prevent="openLogin">登录</a>
       </nav>
       <div class="user-section" v-if="isLogin">
@@ -70,13 +59,6 @@ const throwError = () => {
             exact-active-class="active" /></router-link>
       </div>
     </header>
-    <!-- 错误提示窗口 -->
-    <ErrorModal v-if="errorStore.message">{{ errorStore.message }}</ErrorModal>
-    <!-- 公告窗口 -->
-    <NoticeModal v-if="notice" @update:show="val => notice = val">{{ notice }}</NoticeModal>
-    <!-- 登陆弹窗 -->
-    <LoginModal v-if="loginShow" @update:showLogin="() => loginShow = false" @loginSuccess="handleLoginSuccess" />
-
     <RouterView />
 
     <!-- 测试部分
@@ -87,6 +69,12 @@ const throwError = () => {
       <button @click="notice = '这是一个新的公告！'">显示公告</button>
     </div> -->
   </div>
+  <!-- 错误提示窗口 -->
+  <ErrorModal v-if="errorStore.message">{{ errorStore.message }}</ErrorModal>
+  <!-- 公告窗口 -->
+  <NoticeModal v-if="notice" @update:show="() => notice = false">{{ notice }}</NoticeModal>
+  <!-- 登陆弹窗 -->
+  <LoginModal v-if="loginShow" @update:showLogin="() => loginShow = false" @loginSuccess="handleLoginSuccess" />
 </template>
 
 <style scoped>

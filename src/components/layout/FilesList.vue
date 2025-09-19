@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import { handlePageAcquisition, handleIsSearch } from '@/service/FileService';
-import { ResourceTypes, type FilePage, type FileRequestCondition, type FileSearchCondition } from '@/types';
+import { ResourceTypes, type DisplayFile, type FilePage, type FileRequestCondition, type FileSearchCondition } from '@/types';
 import { onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { Loading } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
 let timer: number | null = null
 const version = ref(0)
 const currentPage = ref(1)
-const fp = ref<FilePage | null>(null)  // 文件列表
+const fp = ref<FilePage | null>({
+    currentPage: 0,
+    totalPages: 0,
+    pageSize: 0,
+    latestVersion: 0,
+    results: []
+})  // 文件列表
 // 创建响应式的筛选条件
 const fileSearchCondition = reactive<FileSearchCondition>({
     searchTerm: '',
@@ -36,8 +43,10 @@ function updateLRUCache(cache: Map<number, FilePage>, pageIndex: number, data: F
     cache.delete(pageIndex)
     cache.set(pageIndex, data)
 }
+const ready = ref(false)
 //提交搜索方法
 async function submitSearch(needPage: number) {
+    ready.value = false
     window.scrollTo({ top: 0, behavior: 'instant' })
     console.log('搜索条件:', fileSearchCondition)
     const currentCache = handleIsSearch(fileSearchCondition) ? searchCache.value : normalCache.value
@@ -70,6 +79,7 @@ async function submitSearch(needPage: number) {
         }
     }
     updateLRUCache(currentCache, needPage, fp.value!)
+    ready.value = true
     return
 }
 // 监视筛选条件变化进行自动搜索
@@ -94,9 +104,10 @@ const pageInfo = ref({
     y: 0,
     pageIndex: 0,
 })
-const jumpToPage = ref<number>(1)
+
 // 跳转到文件详情页
-function goToFile(fileId: number) {
+function goToFile(row: DisplayFile) {
+    const fileId = row.id
     // 保存当前滚动位置和页码
     pageInfo.value.y = window.scrollY || document.documentElement.scrollTop
     pageInfo.value.pageIndex = currentPage.value
@@ -139,7 +150,6 @@ onMounted(async () => {
                     <input id="searchTerm" v-model="fileSearchCondition.searchTerm" type="text"
                         placeholder="请输入搜索关键词" />
                 </div>
-
                 <div class="filters-container">
                     <!-- 资源类型选择框 -->
                     <label for="resourceType">资源类型:</label>
@@ -170,40 +180,38 @@ onMounted(async () => {
             </div>
         </div>
         <!-- 展示区 -->
-        <div v-if="fp && fp.results && fp.results.length">
-            <table cellspacing="0" cellpadding="8" class="file-table">
-                <thead>
-                    <tr>
-                        <th>文件名</th>
-                        <th>类型</th>
-                        <th>描述</th>
-                        <th>上传日期</th>
-                        <th>收藏量</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="file in fp.results" :key="file.id" @click="goToFile(file.id)" class="file-table-tr">
-                        <td>{{ file.name }}</td>
-                        <td>{{ ResourceTypes[file.fileType as keyof typeof ResourceTypes] }}</td>
-                        <td>{{ file.description }}</td>
-                        <td>{{ new Date(file.uploadDate).toLocaleDateString('zh-CN') }}</td>
-                        <td>{{ file.collectionCount }}</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div v-if="ready" class="table-container">
+            <div v-if="fp && fp.results && fp.results.length">
+                <el-table :data="fp.results" stripe style="width: 90%; margin: 0 auto;" @row-click="goToFile">
+                    <el-table-column prop="name" label="文件名" min-width="20%">
+                    </el-table-column>
+                    <el-table-column prop="fileType" label="类型" min-width="10%">
+                    </el-table-column>
+                    <el-table-column prop="description" label="描述" min-width="30%">
+                    </el-table-column>
+                    <el-table-column prop="uploadDate" label="上传时间" min-width="10%">
+                    </el-table-column>
+                    <el-table-column prop="collectionCount" label="收藏次数" min-width="10%">
+                    </el-table-column>
+                </el-table>
+            </div>
+            <div v-else>
+                <p style="color: #ccc;">暂无文件数据</p>
+            </div>
+            <!-- 跳转 -->
+            <footer class="pagination-container">
+                <el-pagination layout="prev, pager, next, jumper" :total="fp!.totalPages * 20"
+                    :current-page="currentPage" :page-size="fp!.pageSize" @current-change="jumpPage">
+                </el-pagination>
+            </footer>
         </div>
-        <div v-else>
-            <p style="color: #ccc;">暂无文件数据。</p>
+        <div v-else class="loading-container">
+            <el-icon class="is-loading">
+                <Loading />
+            </el-icon>
         </div>
-        <!-- 跳转 -->
-        <div class="pagination-container">
-            <button @click="jumpPage(currentPage - 1)">上一页</button>
-            <span v-if="fp">当前页码: {{ currentPage }}</span>
-            <button @click="jumpPage(currentPage + 1)">下一页</button>
-            <span v-if="fp">总页数: {{ fp.totalPages }}</span>
-            <input type="number" v-model="jumpToPage" class="page-input" />
-            <button @click="jumpPage(jumpToPage)">跳转</button>
-        </div>
+
+
     </div>
 </template>
 
@@ -274,46 +282,8 @@ onMounted(async () => {
     min-width: 100px;
 }
 
-.file-table {
-    width: 80%;
-    /* 控制表格宽度 */
-    max-width: 1000px;
-    /* 控制表格最大宽度 */
-    height: 400px;
-    /* 控制表格的高度 */
-    overflow: auto;
-    /* 如果内容超过高度，显示滚动条 */
-    border-collapse: collapse;
-    /* 合并边框 */
-
-    /* 设置表格相对于父容器的位置 */
-    margin: 150px auto 20px;
-    /* 上边距100px避免被固定栏覆盖，下边20px，左右居中 */
-}
-
-
-.file-table th,
-.file-table td {
-    padding: 8px 12px;
-    /* 设置单元格内边距 */
-    text-align: left;
-    border-bottom: 1px dashed #ccc;
-    /* 虚线隔开每行 */
-    height: 40px;
-}
-
-.file-table-tr:hover {
-    background-color: #f0f0f0;
-    /* 鼠标悬浮时改变背景色 */
-    transform: scale(1.05);
-    /* 放大效果 */
-}
-
-.file-table th {
-    background-color: #ffffff;
-    /* 设置表头的背景色 */
-    font-weight: bold;
-    /* 加粗表头文本 */
+.table-container {
+    padding-top: 100px;
 }
 
 .pagination-container {
@@ -326,33 +296,38 @@ onMounted(async () => {
     /* 按钮、页码和输入框之间的间距 */
     margin-top: 50px;
     /* 上方间距 */
+   padding-bottom: 100px;
+   
 }
 
-.page-input {
-    width: 60px;
-    /* 调整输入框宽度 */
-    padding: 5px;
-    text-align: center;
-    /* 输入框内的文本居中 */
-    font-size: 14px;
-    /* 调整字体大小 */
-    border: 1px solid #ccc;
-    /* 输入框边框 */
-    border-radius: 4px;
-    /* 圆角边框 */
+/* 调整分页按钮大小 */
+.pagination-container :deep(.el-pagination button) {
+  width: 50px;
+  height: 40px;
 }
 
-button {
-    padding: 5px 10px;
-    /* 按钮的内边距 */
-    font-size: 14px;
-    /* 调整字体大小 */
-    cursor: pointer;
-    /* 鼠标指针样式 */
+/* 调整数字页码 */
+.pagination-container :deep(.el-pager li) {
+  width: 40px;
+  height: 40px;
+  line-height: 50px;
+  font-size: 16px;
 }
 
-span {
-    font-size: 14px;
-    /* 页码的字体大小 */
+/* 调整跳转输入框 */
+.pagination-container :deep(.el-pagination__editor.el-input) {
+  width: 60px;
+  height: 30px;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 64px;
+    /* 调大图标大小，比如 64px */
+    color: #56615c;
+    /* 可选：改颜色 */
 }
 </style>

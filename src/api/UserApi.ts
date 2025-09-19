@@ -42,3 +42,18 @@ export const updateUserPasswordRequest = async (oldPassword: string, newPassword
         throw error;
     }
 }
+
+// 头像上传API
+export const updateAvatarRequest = async (avatarData: string): Promise<number> => {
+    try {
+        const response = await axiosInstance.post(
+            '/api/user/updateAvatar', { avatar: avatarData }
+        )
+        console.log("后端返回的信息码：", response.data.code)
+        console.log("后端返回的数据：", response.data.data)
+        return response.data.code
+    } catch (error) {
+        console.error('上传头像失败:', error)
+        throw error;
+    }
+}

@@ -4,6 +4,8 @@ import App from '@/App.vue'
 import router from '@/router'
 import { createPinia } from 'pinia'
 import { useErrorStore } from './stores/error'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 
 const app = createApp(App)
 app.config.errorHandler = (err, instance, info) => {
@@ -19,4 +21,5 @@ app.config.errorHandler = (err, instance, info) => {
 }
 
 const pinia = createPinia();
+app.use(ElementPlus)
 app.use(router).use(pinia).mount('#app')

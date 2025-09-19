@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { handleUpdateUserPassword } from '@/service/UserService';
 import { checkPasswordStrength } from '@/utils/inspectionTool';
-import { ref, watch } from 'vue';
-import NoticeModal from '@/components/dialog/NoticeModal.vue'
+import { reactive, ref, watch } from 'vue';
+import { openSuccessNotice, openWarningNotice } from '@/utils/noticeUtils';
+import 'element-plus/dist/index.css'
 
 const emits = defineEmits<{
     (e: 'update:close'): void
 }>()
 
-const pw = ref<{
+const pw = reactive<{
     oldPassword: string
     newPassword: string
     confirmPassword: string
@@ -17,65 +18,97 @@ const pw = ref<{
     newPassword: '',
     confirmPassword: ''
 })
-const notice = ref<string | boolean>(false)
-const hint = ref('')
-watch(() => pw.value.newPassword, () => {
-    const strength = checkPasswordStrength(pw.value.newPassword)
-    hint.value = '密码强度：' + strength + '/6'
+const strength = ref(0)
+watch(() => pw.newPassword, () => {
+    strength.value = checkPasswordStrength(pw.newPassword)
+    
 }), { deep: true }
 
-const submit = async (): Promise<void> => {
-    if (pw.value.newPassword.includes(" ")) {
-        hint.value = '密码不能含空格'
-        return
-    }
-    if (pw.value.newPassword !== pw.value.confirmPassword) {
-        hint.value = '两次输入的更改密码不同'
-        return
-    }
-    if (pw.value.newPassword.length < 6) {
-        hint.value = '密码长度至少为6位'
-        return
-    }
-    const result = await handleUpdateUserPassword(pw.value.oldPassword, pw.value.newPassword)
-    if (result === 1) {
-        hint.value = '原密码错误'
-        return
-    }
+const validateOldPassword = (_rule: any, value: string) => {
+    if (!value) throw new Error('请输入密码');
+    if (value.length < 6) throw new Error('密码长度不能小于6位');
+    if (value.length > 20) throw new Error('密码长度不能大于20位');
+}
+
+const validateNewPassword = async (_rule: any, value: string) => {
+    if (!value) throw new Error('请输入新密码')
+    if (value.length < 6) throw new Error('密码长度不能小于6位')
+}
+
+// 确认密码验证
+const validateConfirmPassword = async (_rule: any, value: string) => {
+    if (value !== pw.newPassword) throw new Error('两次输入的密码不一致')
+}
+
+const rules = {
+    oldPassword: [
+        { validator: validateOldPassword, trigger: 'blur' }
+    ],
+    newPassword: [
+        { validator: validateNewPassword, trigger: 'blur' }
+    ],
+    confirmPassword: [
+        { validator: validateConfirmPassword, trigger: 'blur' }
+    ]
+};
+
+async function submitForm() {
+    const result = await handleUpdateUserPassword(pw.oldPassword, pw.newPassword)
     if (result === 0) {
-        if (result === 0) {
-            notice.value = '修改成功'
-        }
+        openSuccessNotice('修改成功')
+        emits('update:close')
+
+    } else if (result === 1) {
+        openWarningNotice('原密码错误')
     }
 }
 
-function closeNotice() {
-    notice.value = false;
+function resetForm() {
+    pw.confirmPassword = ''
+    pw.newPassword = ''
+    pw.oldPassword = ''
+}
+
+function back() {
     emits('update:close')
 }
 </script>
 
 <template>
     <Teleport to="body">
-
         <div class="overlay">
             <div class="update-box">
-                <h1>密码更改</h1>
-                <label>原密码</label>
-                <input v-model="pw.oldPassword" type="password" placeholder="原密码" />
-                <label>新密码</label>
-                <input v-model="pw.newPassword" type="password" placeholder="新密码" />
-                <label>确认新密码</label>
-                <input v-model="pw.confirmPassword" type="password" placeholder="确认新密码" />
-                <button @click="submit">确认修改</button>
+                <el-page-header @back="back">
+                </el-page-header>
+                <h2>修改密码</h2>
+                <el-form :model="pw" status-icon label-position="left" :rules="rules" label-width="100px" class="update-form">
+                    <el-form-item label="原密码" prop="oldPassword">
+                        <el-input type="password" v-model="pw.oldPassword" autocomplete="off" show-password></el-input>
+                    </el-form-item>
+                    <el-form-item label="新密码" prop="newPassword">
+                        <el-input type="password" v-model="pw.newPassword" autocomplete="off" show-password></el-input>
+                    </el-form-item>
+                    <el-form-item label="确认密码" prop="confirmPassword">
+                        <el-input type="password" v-model="pw.confirmPassword" autocomplete="off"
+                            show-password></el-input>
+                    </el-form-item>
 
-                <a href="#" @click="">忘记密码</a>
-                <button @click="emits('update:close')">取消</button>
-                <p style="color: red;">{{ hint }}</p>
+                    <el-form-item class="form-buttons">
+                        <el-button type="primary" @click="submitForm()">提交</el-button>
+                        <el-button @click="resetForm()">重置</el-button>
+                    </el-form-item>
+                    
+                </el-form>
+                <el-progress 
+                  :percentage="strength * 20" 
+                  :format="() => '当前密码强度: ' + strength + '/5'"
+                  :stroke-width="20"
+                  :text-inside="true"
+                  style="width: 80%; margin-top: 20px;">
+                </el-progress>
             </div>
         </div>
     </Teleport>
-    <NoticeModal v-if="notice" @update:show="closeNotice">{{ notice }}</NoticeModal>
 </template>
 
 <style scoped>
@@ -97,11 +130,49 @@ function closeNotice() {
 
 .update-box {
     width: 480px;
-    height: 80%;
+    height: 50%;
     background-color: #fff;
     border-radius: 16px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     z-index: 9995;
-    /* 高于 overlay */
+    position: relative;
+    /* 添加相对定位 */
+
+    display: flex;
+    /* 开启 flex 布局 */
+    justify-content: center;
+    /* 水平居中 */
+    flex-direction: column;
+    /* 垂直方向上正常排列子元素 */
+    align-items: center;
+    /* 可选：垂直方向居中 */
+    padding: 20px;
+    /* 内边距美观 */
+    box-sizing: border-box;
+}
+
+.update-box .el-page-header {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+}
+
+
+.update-form {
+    width: 80%;
+    /* 最大宽度 400px，避免太宽 */
+    margin: 20px auto;
+    /* 水平居中 */
+}
+
+.form-buttons :deep(.el-form-item__content) {
+    display: flex;
+    justify-content: center;
+    margin-left: 0 !important;
+}
+
+.form-buttons .el-button {
+    margin: 0 16px;
 }
 </style>
