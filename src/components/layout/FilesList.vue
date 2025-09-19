@@ -12,26 +12,13 @@ const currentPage = ref(1)
 const fp = ref<FilePage | null>(null)  // 文件列表
 // 创建响应式的筛选条件
 const fileSearchCondition = reactive<FileSearchCondition>({
-    searchTerm: null,
-    ResourceType: null,
-    dateRange: null,
-    order: null
+    searchTerm: '',
+    resourceType: '',
+    dateRange: '',
+    order: ''
 });
 // 创建中文的类型标签
-const ResourceTypesLabels = {
-    ARTICLE: '文章/博客/教程',
-    BOOK: '电子书/文档',
-    VIDEO: '视频课程/讲解',
-    AUDIO: '音频/播客',
-    IMAGE: '图片/插画/壁纸',
-    CODE: '源代码/代码片段',
-    TOOL: '工具/软件',
-    DATASET: '数据集/表格',
-    PRESENTATION: 'PPT/演示文档',
-    ARCHIVE: '压缩包/合集',
-    OTHER: '其他',
-    NULL: '所有类型'
-};
+
 // 使用LRU队列限制缓存页数（最大缓存10页）
 const MAX_CACHE_PAGES = 10
 const searchCache = ref<Map<number, FilePage>>(new Map())
@@ -76,6 +63,7 @@ async function submitSearch(needPage: number) {
             console.log('旧版本为:', version.value)
             version.value = fp.value.latestVersion
             console.log('版本更新为:', version.value)
+            console.log('清除缓存');
             // 清除缓存
             searchCache.value.clear()
             normalCache.value.clear()
@@ -155,29 +143,28 @@ onMounted(async () => {
                 <div class="filters-container">
                     <!-- 资源类型选择框 -->
                     <label for="resourceType">资源类型:</label>
-                    <select id="resourceType" v-model="fileSearchCondition.ResourceType">
-                        <option v-for="(type, key) in ResourceTypes" :key="key" :value="type">
-                            {{ ResourceTypesLabels[key] }}
+                    <select id="resourceType" v-model="fileSearchCondition.resourceType">
+                        <option value=''>全部</option>
+                        <option v-for="(type, key) in ResourceTypes" :key="key" :value="key">
+                            {{ type }}
                         </option>
                     </select>
                     <!-- 日期范围选择框 -->
                     <label for="dateRange">日期范围:</label>
                     <select id="dateRange" v-model="fileSearchCondition.dateRange">
+                        <option value=''>默认</option>
                         <option value="last24Hours">最近24小时</option>
                         <option value="last7Days">最近7天</option>
                         <option value="last30Days">最近30天</option>
                         <option value="last90Days">最近90天</option>
-                        <option value="allTime">所有时间</option>
-                        <option value=null>默认</option>
                     </select>
 
                     <!-- 排序方式选择框 -->
                     <label for="order">排序方式:</label>
                     <select id="order" v-model="fileSearchCondition.order">
+                        <option value=''>默认</option>
                         <option value="newest">最新</option>
-                        <option value="oldest">最旧</option>
                         <option value="mostCollected">收藏最多</option>
-                        <option value=null>默认</option>
                     </select>
                 </div>
             </div>
@@ -197,7 +184,7 @@ onMounted(async () => {
                 <tbody>
                     <tr v-for="file in fp.results" :key="file.id" @click="goToFile(file.id)" class="file-table-tr">
                         <td>{{ file.name }}</td>
-                        <td>{{ file.type }}</td>
+                        <td>{{ ResourceTypes[file.fileType as keyof typeof ResourceTypes] }}</td>
                         <td>{{ file.description }}</td>
                         <td>{{ new Date(file.uploadDate).toLocaleDateString('zh-CN') }}</td>
                         <td>{{ file.collectionCount }}</td>
@@ -312,6 +299,7 @@ onMounted(async () => {
     text-align: left;
     border-bottom: 1px dashed #ccc;
     /* 虚线隔开每行 */
+    height: 40px;
 }
 
 .file-table-tr:hover {

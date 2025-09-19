@@ -12,6 +12,6 @@ export const getImgRequest = async (url: string): Promise<[string | null, number
     } catch (error) {
         // 取消上传失败，捕获异常
         console.error('获取资源数据失败:', error)
-        throw new Error('网络错误')
+        throw error;
     }
 };

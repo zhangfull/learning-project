@@ -11,9 +11,13 @@ let id = Number(route.params.id)
 function goBack() {
     router.push({ path: '/files', query: { from: 'detail' } })
 }
-    
+
 const fileDetail = ref<DetailFile | null>(null);
 onMounted(() => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'instant'
+    })
     handleFileDetail(id).then(detail => {
         fileDetail.value = detail;
     });

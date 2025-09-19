@@ -1,7 +1,7 @@
 <template>
   <div class="modal">
     <div class="modal-content">
-      <h2>公告</h2>
+      <h2>提示</h2>
       <p><slot/></p>
       <button @click="close">关闭</button>
     </div>
@@ -11,7 +11,7 @@
 <script setup lang="ts">
 const emit = defineEmits(['update:show']);
 function close() {
-  emit('update:show', false);
+  emit('update:show');
 }
 </script>
 

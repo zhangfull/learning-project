@@ -11,6 +11,34 @@ export const getPersonalInfoRequest = async (): Promise<[PersonalInfo | null, nu
         return [response.data.data, response.data.code]
     } catch (error) {
         console.error('获取资源数据失败:', error)
-        throw new Error('网络错误')
+        throw error;
+    }
+}
+
+export const updateUserInfoRequest = async (userInfo: PersonalInfo): Promise<number> => {
+    try {
+        const response = await axiosInstance.post(
+            '/api/user/update', userInfo
+        )
+        console.log("后端返回的信息码：", response.data.code)
+        console.log("后端返回的数据：", response.data.data)
+        return response.data.code
+    } catch (error) {
+        console.error('获取资源数据失败:', error)
+        throw error;
+    }
+}
+
+export const updateUserPasswordRequest = async (oldPassword: string, newPassword: string): Promise<number> => {
+    try {
+        const response = await axiosInstance.post(
+            '/api/user/updatePassword', { oldPassword, newPassword }
+        )
+        console.log("后端返回的信息码：", response.data.code)
+        console.log("后端返回的数据：", response.data.data)
+        return response.data.code
+    } catch (error) {
+        console.error('获取资源数据失败:', error)
+        throw error;
     }
 }

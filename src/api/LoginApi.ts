@@ -13,7 +13,7 @@ export const loginRequest = async (emailOrUid: string, password: string): Promis
     } catch (error) {
         // 取消上传失败，捕获异常
         console.error('获取资源数据失败:', error)
-        throw new Error('网络错误')
+        throw error;
     }
 };
 
@@ -27,7 +27,7 @@ export const autoLoginRequest = async (): Promise<[UserInfo | null, number]> => 
         return [response.data.data, response.data.code]
     } catch (error) {
         console.error('获取资源数据失败:', error)
-        throw new Error('网络错误')
+        throw error;
     }
 }
 
@@ -42,6 +42,6 @@ export const registerRequest = async (userInfo: RegisterInfo): Promise<number> =
         return 0
     } catch (error) {
         console.error('获取资源数据失败:', error)
-        throw new Error('网络错误')
+        throw error;
     }
 }

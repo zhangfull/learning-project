@@ -5,12 +5,12 @@ import type { RegisterInfo } from '@/types';
 import { checkPasswordStrength } from '@/utils/inspectionTool';
 
 const emit = defineEmits<{
-  (e: 'update:showLogin', value: boolean): void
+  (e: 'update:showLogin'): void
   (e: 'loginSuccess'): void
 }>();
 
 function closeLoginDialog() {
-  emit('update:showLogin', false)
+  emit('update:showLogin')
 };
 const loginOrRegister = ref('login') // 'login' 或 'register'
 const emailOrUid = ref('')
@@ -20,7 +20,7 @@ async function login() {
   const [success, message] = await handleLogin(emailOrUid.value, password.value);
   if (success) {
     hint.value = ''
-    emit('update:showLogin', false)
+    emit('update:showLogin')
     emit('loginSuccess')
   } else {
     hint.value = message
@@ -35,8 +35,8 @@ const registerInfo = ref<RegisterInfo>({
 })
 watch(() => registerInfo.value.password, () => {
   const strength = checkPasswordStrength(registerInfo.value.password)
-    hint.value = '密码强度：'+strength+'/6'
-}), {deep: true}
+  hint.value = '密码强度：' + strength + '/6'
+}), { deep: true }
 async function register() {
   if (registerInfo.value.password !== registerInfo.value.confirmPassword) {
     hint.value = '两次输入的密码不一致'
@@ -44,6 +44,10 @@ async function register() {
   }
   if (registerInfo.value.password.length < 6) {
     hint.value = '密码长度至少为6位'
+    return
+  }
+  if (registerInfo.value.password.includes(" ")) {
+    hint.value = '密码不能含空格'
     return
   }
   const result = await handleRegister(registerInfo.value);

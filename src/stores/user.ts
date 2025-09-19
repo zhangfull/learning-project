@@ -72,6 +72,15 @@ export const useUserStore = defineStore('user', {
                 console.log("重新加载了用户信息");
             }
         },
+        updateUserName(newName: string) {
+            this.userName = newName
+            const userData = localStorage.getItem('user')
+            if (userData) {
+                const parsedData = JSON.parse(userData)
+                parsedData.userName = newName
+                localStorage.setItem('user', JSON.stringify(parsedData))
+            }
+        },
         async autoLogin() {
             // 检查token是否存在
             this.loadTokenFromStorage();

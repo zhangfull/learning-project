@@ -61,7 +61,7 @@ const throwError = () => {
       <nav class="nav-links">
         <router-link to="/" >首页</router-link>
         <router-link to="/files" >列表</router-link>
-        <router-link to="/upload" >上传</router-link>
+        <router-link to="/upload" v-if="isLogin">上传</router-link>
         <router-link to="/about" >关于</router-link>
         <a href="#" v-if="!isLogin" @click.prevent="openLogin">登录</a>
       </nav>
@@ -75,17 +75,17 @@ const throwError = () => {
     <!-- 公告窗口 -->
     <NoticeModal v-if="notice" @update:show="val => notice = val">{{ notice }}</NoticeModal>
     <!-- 登陆弹窗 -->
-    <LoginModal v-if="loginShow" @update:showLogin="val => loginShow = val" @loginSuccess="handleLoginSuccess" />
+    <LoginModal v-if="loginShow" @update:showLogin="() => loginShow = false" @loginSuccess="handleLoginSuccess" />
 
     <RouterView />
 
-    <!-- 测试部分 -->
+    <!-- 测试部分
     <div>
       <h1>{{ test_value }}</h1>
       <button @click="test">测试</button>
       <button @click="throwError">抛出错误</button>
       <button @click="notice = '这是一个新的公告！'">显示公告</button>
-    </div>
+    </div> -->
   </div>
 </template>
 

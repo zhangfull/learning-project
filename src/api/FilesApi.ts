@@ -1,137 +1,21 @@
 import type { FileRequestCondition, FilePage, DetailFile } from "@/types";
+import axiosInstance from "@/utils/axiosInstance";
 
 export const getFileListRequest = async (frc: FileRequestCondition): Promise<FilePage | null> => {
-    // 模拟网络请求延迟
-    await new Promise(resolve => setTimeout(resolve, 500));
-    // 模拟文件列表
-    const mockFileList: FilePage = {
-        currentPage: frc.needPage,
-        totalPages: 15,
-        latestVersion: 3,
-        results: [
-            {
-                id: 1,
-                name: "文件1",
-                type: "文档",
-                description: "这是文件1的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 2,
-                name: "文件2",
-                type: "视频",
-                description: "这是文件2的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 3,
-                name: "文件3",
-                type: "音频",
-                description: "这是文件3的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 1,
-                name: "文件1",
-                type: "文档",
-                description: "这是文件1的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 2,
-                name: "文件2",
-                type: "视频",
-                description: "这是文件2的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 3,
-                name: "文件3",
-                type: "音频",
-                description: "这是文件3的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 1,
-                name: "文件1",
-                type: "文档",
-                description: "这是文件1的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 2,
-                name: "文件2",
-                type: "视频",
-                description: "这是文件2的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 3,
-                name: "文件3",
-                type: "音频",
-                description: "这是文件3的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 1,
-                name: "文件1",
-                type: "文档",
-                description: "这是文件1的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 2,
-                name: "文件2",
-                type: "视频",
-                description: "这是文件2的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 3,
-                name: "文件3",
-                type: "音频",
-                description: "这是文件3的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 1,
-                name: "文件1",
-                type: "文档",
-                description: "这是文件1的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 2,
-                name: "文件2",
-                type: "视频",
-                description: "这是文件2的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            },
-            {
-                id: 3,
-                name: "文件3",
-                type: "音频",
-                description: "这是文件3的描述",
-                uploadDate: new Date().toLocaleDateString('zh-CN'),
-                collectionCount: 123
-            }
-        ]
-    };
-    return mockFileList;
+
+    console.log('API获取文件条件', frc);
+    try {
+        const response = await axiosInstance.post('/api/file/getFiles', 
+            frc
+        )
+        console.log("后端返回的信息码：", response.data.code)              //调试
+        console.log("后端返回的数据：", response.data.data)              //调试
+        return response.data.data
+    } catch (error) {
+        // 取消上传失败，捕获异常
+        console.error('获取资源数据失败:', error)
+        throw error;
+    }
 };
 
 export const getFileDetailRequest = async (id: number): Promise<DetailFile | null> => {
@@ -148,7 +32,7 @@ export const getFileDetailRequest = async (id: number): Promise<DetailFile | nul
         tags: ['热门', '推荐', '最新'],
         id: id,
         name: "测试文件" + id,
-        type: "video",
+        fileType: "video",
         description: "这是测试文件" + id + "的描述",
         uploadDate: new Date().toLocaleDateString('zh-CN'),
     }

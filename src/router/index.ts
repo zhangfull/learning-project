@@ -32,12 +32,12 @@ const routes: Array<RouteRecordRaw> = [
         name: 'Individual',
         component: () => import('@/views/IndividualPage.vue'),
         children: [
-            { path: '', redirect: '/individual/information' },
-            { path: 'information', component: () => import('@/views/MyInformation.vue') },
-            { path: 'followers', component: () => import('@/views/Followers.vue') },
-            { path: 'favorite', component: () => import('@/views/MyFavorite.vue') },
-            { path: 'browsing-history', component: () => import('@/views/BrowsingHistory.vue') },
-            { path: 'upload', component: () => import('@/views/MyUpload.vue') }
+            { path: '', name: 'IndividualHome', redirect: '/individual/information' },
+            { path: 'information', name: 'IndividualInformation', component: () => import('@/views/MyInformation.vue') },
+            { path: 'followers', name: 'IndividualFollowers', component: () => import('@/views/Followers.vue') },
+            { path: 'favorite', name: 'IndividualFavorite', component: () => import('@/views/MyFavorite.vue') },
+            { path: 'browsing-history', name: 'IndividualBrowsingHistory', component: () => import('@/views/BrowsingHistory.vue') },
+            { path: 'upload', name: 'IndividualUpload', component: () => import('@/views/MyUpload.vue') }
         ]
     }
     // 可以继续添加更多路由
