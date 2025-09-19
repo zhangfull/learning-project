@@ -1,4 +1,4 @@
-import { getImgRequest } from "@/api/ImgApi";
+import { getImgRequest, uploadImgRequest } from "@/api/ImgApi";
 
 export const handleGetAvatarImg = async (url: string): Promise<string> => {
     const [base64, code] = await getImgRequest(url);
@@ -11,8 +11,8 @@ export const handleGetAvatarImg = async (url: string): Promise<string> => {
     }
 };
 
-export const handleUploadAvatarImg = async (file: File, fileName: string): Promise<number> => {
+export const handleUploadAvatarImg = async (file: File): Promise<number> => {
     const formData = new FormData();
-    formData.append(fileName, file);
-    return 0
+    formData.append('avatar', file);
+    return uploadImgRequest(formData);
 };

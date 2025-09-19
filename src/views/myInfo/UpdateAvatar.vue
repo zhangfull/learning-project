@@ -5,6 +5,7 @@ import { ref } from 'vue';
 import { Upload, Picture } from '@element-plus/icons-vue';
 import { openErrorNotice, openSuccessNotice, openWarningNotice } from '@/utils/noticeUtils';
 import { useUserStore } from '@/stores/user';
+import { handleUploadAvatarImg } from '@/service/ImgService';
 
 const imgRef = ref()
 const imageSrc = ref('')
@@ -81,11 +82,16 @@ function uploadCutFile() {
     const file = new File([blob], originalFileName.value, { type: 'image/jpeg' })
     // console.log('裁剪后的文件:', file);
     isUploading.value = true
-    setTimeout(() => {                    //已经读取完成，给图片加载时间0.1s
-
-      openSuccessNotice('上传成功！');
+    setTimeout(async () => {                    //已经读取完成，给图片加载时间0.1s
+      const result = await handleUploadAvatarImg(file);
+      if (result === 0) {
+        openSuccessNotice('上传成功！');
+        userStore.avatarBase64 = URL.createObjectURL(file)
+      } else {
+        openErrorNotice("上传失败！")
+      }
       isUploading.value = false
-      userStore.avatarBase64 = URL.createObjectURL(file)
+      
     }, 2000);
   }, 'image/jpeg', 0.9)
 }

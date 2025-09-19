@@ -68,7 +68,7 @@ async function save() {
 <style scoped>
 main {
   max-width: 800px;
-  /* margin: 0 auto; */
+  margin: 0 auto;
   padding: 2rem;
   align-items: center;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

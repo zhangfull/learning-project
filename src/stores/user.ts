@@ -28,6 +28,7 @@ export const useUserStore = defineStore('user', {
     }),
     actions: {
         async setUser(userInfo: UserInfo) {
+            localStorage.setItem('token', userInfo.token)
             this.userName = userInfo.userName
             this.email = userInfo.email
             this.uid = userInfo.uid
@@ -41,7 +42,6 @@ export const useUserStore = defineStore('user', {
                 isLogin: true,
                 expireTime: new Date((new Date()).getTime() + 604800000)// 默认一周后过期
             }))
-            localStorage.setItem('token', userInfo.token)
         },
         logout() {
             this.userName = ''

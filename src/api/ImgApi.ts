@@ -7,7 +7,6 @@ export const getImgRequest = async (url: string): Promise<[string | null, number
             { url }
         )
         console.log("后端返回的信息码：", response.data.code)              //调试
-        console.log("后端返回的数据：", response.data.data)              //调试
         return [response.data.data, response.data.code]
     } catch (error) {
         // 取消上传失败，捕获异常
