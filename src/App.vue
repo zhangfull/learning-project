@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import LoginModal from '@/components/dialog/LoginModal.vue';
 import { useUserStore } from '@/stores/user';
 import ErrorModal from '@/components/dialog/ErrorModal.vue';
@@ -25,6 +25,13 @@ function handleLoginSuccess() {
   userName.value = userStore.userName
   avatarBase64.value = userStore.avatarBase64
 }
+// 监听用户头像信息实时更改导航信息
+watch(
+  () => userStore.avatarBase64,
+  () => {
+    avatarBase64.value = userStore.avatarBase64
+  }
+);
 
 onMounted(async () => {
   const success = await userStore.autoLogin()
@@ -80,9 +87,11 @@ onMounted(async () => {
 <style scoped>
 .box {
   width: 100%;
-  height: 100vh;
+  min-height: calc(100vh - 120px);
   margin-top: 60px;
   background-color: white;
+  box-sizing: border-box;
+  /* 确保padding包含在宽度内 */
 }
 
 .navbar {

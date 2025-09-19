@@ -17,7 +17,6 @@ const info = ref<PersonalInfo>(JSON.parse(JSON.stringify(props.personalInfo)))
 function turn() {
     emits('update:turn')
 }
-const notice = ref<string | boolean>(false)
 async function save() {
     if (info.value.name === props.personalInfo?.name && info.value.briefIntroduction === props.personalInfo.briefIntroduction) {
         openSuccessNotice('信息更改成功')

@@ -78,9 +78,8 @@ function back() {
     <Teleport to="body">
         <div class="overlay">
             <div class="update-box">
-                <el-page-header @back="back">
+                <el-page-header @back="back" content="修改密码">
                 </el-page-header>
-                <h2>修改密码</h2>
                 <el-form :model="pw" status-icon label-position="left" :rules="rules" label-width="100px" class="update-form">
                     <el-form-item label="原密码" prop="oldPassword">
                         <el-input type="password" v-model="pw.oldPassword" autocomplete="off" show-password></el-input>

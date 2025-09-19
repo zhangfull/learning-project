@@ -2,7 +2,7 @@
 import type { UserInfo } from '@/types'
 import { defineStore } from 'pinia'
 import { handleAutoLogin } from '@/service/LoginService'
-import { handleGetImg } from '@/service/ImgService'
+import { handleGetAvatarImg } from '@/service/ImgService'
 
 interface UserState {
     userName: string
@@ -32,7 +32,7 @@ export const useUserStore = defineStore('user', {
             this.email = userInfo.email
             this.uid = userInfo.uid
             this.avatarUrl = userInfo.avatarUrl
-            this.avatarBase64 = await handleGetImg(this.avatarUrl)  
+            this.avatarBase64 = await handleGetAvatarImg(this.avatarUrl)
             this.isLogin = true
             // 持久化 token 到 localStorage
             localStorage.setItem('user', JSON.stringify({
@@ -92,7 +92,7 @@ export const useUserStore = defineStore('user', {
             this.loadUserFromStorage();
             if (new Date() < new Date(this.expireTime) && this.isLogin) {
                 console.log("本地登录有效");
-                this.avatarBase64 = await handleGetImg(this.avatarUrl)
+                this.avatarBase64 = await handleGetAvatarImg(this.avatarUrl)
                 return true;
             } else {
                 // 尝试自动登录

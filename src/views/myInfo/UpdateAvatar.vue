@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import 'cropperjs/dist/cropper.css'
 import Cropper from 'cropperjs';
-import { ElMessage } from 'element-plus'
-
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { Upload, Picture } from '@element-plus/icons-vue';
+import { openErrorNotice, openSuccessNotice, openWarningNotice } from '@/utils/noticeUtils';
+import { useUserStore } from '@/stores/user';
 
 const imgRef = ref()
 const imageSrc = ref('')
 const fileInputRef = ref<HTMLInputElement>()
-
+const userStore = useUserStore()
 let cropper: Cropper;
 
 function initCropper() {
@@ -21,7 +21,7 @@ function initCropper() {
     aspectRatio: 1,
     preview: "#preview",
     viewMode: 1,
-    crop(event: any) {
+    crop(_event: any) {
       // console.log(event.detail.x)
       // console.log(event.detail.y)
       // console.log(event.detail.width)
@@ -34,7 +34,9 @@ function initCropper() {
   cropper = new Cropper(imgRef.value, option);
 }
 
+const originalFileName = ref('')
 function handleFileSelect(event: Event) {
+  isUploading.value = false
   const input = event.target as HTMLInputElement;
   if (!input.files || input.files.length === 0) return;
 
@@ -42,54 +44,62 @@ function handleFileSelect(event: Event) {
 
   // 验证文件类型
   if (!file.type.startsWith('image/')) {
-    ElMessage.error('请选择图片文件');
+    openErrorNotice('请选择图片文件');
     return;
   }
 
   // 验证文件大小（限制为5MB）
   if (file.size > 5 * 1024 * 1024) {
-    ElMessage.error('图片大小不能超过5MB');
+    openErrorNotice('图片大小不能超过5MB');
     return;
   }
+  //保存原照片名
+  originalFileName.value = file.name
 
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = (e) => {                // 读取完成自动调取（回调函数）
     imageSrc.value = e.target?.result as string;
     // 给图片加载时间
-    setTimeout(() => {
+    setTimeout(() => {                    //已经读取完成，给图片加载时间0.1s
       initCropper();
     }, 100);
   };
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(file);             //开始读取转化为Base64
 }
 
 function triggerFileInput() {
   fileInputRef.value?.click();
 }
 
-function getCutFile() {
+const isUploading = ref(false)
+function uploadCutFile() {
   if (!cropper) {
-    ElMessage.warning('请先选择图片');
+    openWarningNotice('请先选择图片')
     return;
   }
-
   cropper.getCroppedCanvas({ imageSmoothingQuality: 'high' }).toBlob((blob: any) => {
-    const file = new File([blob], 'cut.jpg', { type: 'image/jpeg' })
-    console.log('裁剪后的文件:', file);
-    ElMessage.success('裁剪完成，请查看控制台输出');
+    const file = new File([blob], originalFileName.value, { type: 'image/jpeg' })
+    // console.log('裁剪后的文件:', file);
+    isUploading.value = true
+    setTimeout(() => {                    //已经读取完成，给图片加载时间0.1s
+
+      openSuccessNotice('上传成功！');
+      isUploading.value = false
+      userStore.avatarBase64 = URL.createObjectURL(file)
+    }, 2000);
   }, 'image/jpeg', 0.9)
 }
 
-onMounted(() => {
-  // 不再自动初始化，等待用户选择图片
-})
+function back() {
+  window.history.back()
+}
+
 </script>
 
 <template>
-  <header>
-    <h1>修改信息</h1>
-  </header>
   <main>
+    <el-page-header @back="back" content="修改头像">
+    </el-page-header>
     <!-- 文件上传区域 -->
     <div class="upload-area">
       <input ref="fileInputRef" type="file" accept="image/*" @change="handleFileSelect" style="display: none">
@@ -99,7 +109,7 @@ onMounted(() => {
         </el-icon>
         选择图片
       </el-button>
-      <span v-if="!imageSrc" class="upload-tip">请选择一张图片进行裁剪</span>
+      <span v-if="!imageSrc" class="upload-tip">请选择一张图片进行裁剪并上传头像(最大5MB)</span>
     </div>
 
     <!-- 主要内容区域 -->
@@ -119,9 +129,12 @@ onMounted(() => {
 
         <!-- 操作按钮 -->
         <div class="action-buttons">
-          <el-button type="primary" @click="getCutFile" :disabled="!imageSrc">
-            获取裁剪文件
+          <el-button type="primary" @click="uploadCutFile" :disabled="!imageSrc" v-if="!isUploading">
+            上传头像
           </el-button>
+          <el-icon class="is-loading" v-else>
+            <p>上传中</p>
+          </el-icon>
         </div>
       </div>
     </div>
@@ -144,9 +157,9 @@ main {
   padding: 20px;
 }
 
-header {
-  text-align: center;
-  margin-bottom: 2rem;
+:deep(.el-page-header) {
+  align-self: flex-start;
+  margin-left: 20px;
 }
 
 .upload-area {

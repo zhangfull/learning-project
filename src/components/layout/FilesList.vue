@@ -195,7 +195,7 @@ onMounted(async () => {
                     </el-table-column>
                 </el-table>
             </div>
-            <div v-else>
+            <div v-else class="no-data-container">
                 <p style="color: #ccc;">暂无文件数据</p>
             </div>
             <!-- 跳转 -->
@@ -286,6 +286,12 @@ onMounted(async () => {
     padding-top: 100px;
 }
 
+.no-data-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;}
+
 .pagination-container {
     display: flex;
     justify-content: center;
@@ -299,6 +305,7 @@ onMounted(async () => {
    padding-bottom: 100px;
    
 }
+
 
 /* 调整分页按钮大小 */
 .pagination-container :deep(.el-pagination button) {

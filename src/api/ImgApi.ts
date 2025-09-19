@@ -7,8 +7,24 @@ export const getImgRequest = async (url: string): Promise<[string | null, number
             { url }
         )
         console.log("后端返回的信息码：", response.data.code)              //调试
-
+        console.log("后端返回的数据：", response.data.data)              //调试
         return [response.data.data, response.data.code]
+    } catch (error) {
+        // 取消上传失败，捕获异常
+        console.error('获取资源数据失败:', error)
+        throw error;
+    }
+};
+
+export const uploadImgRequest = async (data: FormData): Promise<number> => {
+    console.log(`API上传图片...`)
+    try {
+        const response = await axiosInstance.post('/api/img/uploadImage',
+            data
+        )
+        console.log("后端返回的信息码：", response.data.code)              //调试
+        console.log("后端返回的数据：", response.data.data)              //调试
+        return response.data.code
     } catch (error) {
         // 取消上传失败，捕获异常
         console.error('获取资源数据失败:', error)

@@ -8,7 +8,6 @@ import EditMyInfo from '@/components/layout/EditMyInfo.vue';
 const personalInfo = ref<PersonalInfo | null>(null);
 const showMyInfo = ref(true);
 function turnShowAndEdit() {
-    
     showMyInfo.value = !showMyInfo.value;
 }
 
