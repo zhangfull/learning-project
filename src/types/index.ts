@@ -3,7 +3,8 @@ export interface UserInfo {
   email: string
   uid: string
   avatarUrl: string
-  token: string
+  refreshToken: string
+  accessToken: string
   free: string | null
 }
 
@@ -47,7 +48,6 @@ export interface FilePage {
 export interface DetailFile extends DisplayFile {
   introduce: string
   imgs: string[]
-  size: string
   downloadUrl: string
   tags: string[]
 }

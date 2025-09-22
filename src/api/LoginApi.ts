@@ -45,3 +45,17 @@ export const registerRequest = async (userInfo: RegisterInfo): Promise<number> =
         throw error;
     }
 }
+
+
+export const refreshTokenRequest = async (): Promise<[number, string]> => {
+    try {
+        const response = await axiosInstance.post(
+            '/api/login/refresh', {}, { withCredentials: true }
+        )
+        console.log("后端返回的信息码：", response.data.code)
+        return [response.data.code, response.data.data]
+    } catch (error) {
+        console.error('获取资源数据失败:', error)
+        throw error;
+    }
+}

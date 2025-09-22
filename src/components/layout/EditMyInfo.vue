@@ -2,7 +2,6 @@
 import { handleUpdateUserInfo } from '@/service/UserService';
 import type { PersonalInfo } from '@/types';
 import { ref } from 'vue';
-import NoticeModal from '@/components/dialog/NoticeModal.vue'
 import { openSuccessNotice, openWarningNotice } from '@/utils/noticeUtils';
 
 const props = defineProps<{
@@ -45,7 +44,10 @@ async function save() {
 </script>
 
 <template>
+    <el-page-header class="back-header" @back="turn" content="修改个人信息">
+    </el-page-header>
     <main>
+
         <header>
             <h1>修改信息</h1>
         </header>
@@ -54,12 +56,11 @@ async function save() {
                 <el-input v-model="info.name"></el-input>
             </el-form-item>
             <el-form-item label="简介">
-                <el-input type="textarea" v-model="info.briefIntroduction"></el-input>
+                <el-input type="textarea" v-model="info.briefIntroduction" :rows="20"></el-input>
             </el-form-item>
 
             <el-form-item class="form-buttons">
                 <el-button type="primary" @click="save()">提交更改</el-button>
-                <el-button @click="turn()">取消修改</el-button>
             </el-form-item>
         </el-form>
     </main>
@@ -67,24 +68,30 @@ async function save() {
 
 <style scoped>
 main {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  align-items: center;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
+    max-width: 80%;
+    margin: 0 auto;
+    padding: 2rem;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+.back-header {
+    top: 60px;
+    left: 10px;
+    z-index: 10;
 }
 
 header {
-  text-align: center;
-  margin-bottom: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
 }
 
 header h1 {
-  color: #2c3e50;
-  font-size: 2rem;
-  font-weight: 600;
-  margin: 0;
+    color: #2c3e50;
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0;
 }
 
 .form-buttons :deep(.el-form-item__content) {

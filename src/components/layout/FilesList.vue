@@ -182,7 +182,8 @@ onMounted(async () => {
         <!-- 展示区 -->
         <div v-if="ready" class="table-container">
             <div v-if="fp && fp.results && fp.results.length">
-                <el-table :data="fp.results" stripe style="width: 90%; margin: 0 auto;" @row-click="goToFile">
+                <el-table :data="fp.results" stripe style="width: 90%; margin: 0 auto; cursor: pointer;"
+                    @row-click="goToFile">
                     <el-table-column prop="name" label="文件名" min-width="20%">
                     </el-table-column>
                     <el-table-column prop="fileType" label="类型" min-width="10%">
@@ -225,7 +226,7 @@ onMounted(async () => {
 .fixed-component {
     position: fixed;
     /* 固定位置 */
-    top: 50px;
+    top: 60px;
     left: 0;
     /* 确保紧贴左边 */
     width: 100%;
@@ -290,7 +291,8 @@ onMounted(async () => {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 200px;}
+    height: 200px;
+}
 
 .pagination-container {
     display: flex;
@@ -302,29 +304,29 @@ onMounted(async () => {
     /* 按钮、页码和输入框之间的间距 */
     margin-top: 50px;
     /* 上方间距 */
-   padding-bottom: 100px;
-   
+    padding-bottom: 100px;
+
 }
 
 
 /* 调整分页按钮大小 */
 .pagination-container :deep(.el-pagination button) {
-  width: 50px;
-  height: 40px;
+    width: 50px;
+    height: 40px;
 }
 
 /* 调整数字页码 */
 .pagination-container :deep(.el-pager li) {
-  width: 40px;
-  height: 40px;
-  line-height: 50px;
-  font-size: 16px;
+    width: 40px;
+    height: 40px;
+    line-height: 50px;
+    font-size: 16px;
 }
 
 /* 调整跳转输入框 */
 .pagination-container :deep(.el-pagination__editor.el-input) {
-  width: 60px;
-  height: 30px;
+    width: 60px;
+    height: 30px;
 }
 
 .loading-container {

@@ -4,6 +4,7 @@ import type { PersonalInfo } from '@/types';
 import { onMounted, ref } from 'vue';
 import ShowMyInfo from '@/components/layout/ShowMyInfo.vue';
 import EditMyInfo from '@/components/layout/EditMyInfo.vue';
+import { openErrorNotice } from '@/utils/noticeUtils';
 
 const personalInfo = ref<PersonalInfo | null>(null);
 const showMyInfo = ref(true);
@@ -14,7 +15,7 @@ function turnShowAndEdit() {
 onMounted(async () => {
     personalInfo.value = await handleGetUserInfo()
     if (personalInfo.value === null) {
-        throw new Error("个人信息加载失败")
+        openErrorNotice('获取个人信息失败，请重试')
     }
     console.log('个人信息界面加载完成')
 });
@@ -25,4 +26,5 @@ onMounted(async () => {
     <EditMyInfo v-else :personalInfo="personalInfo" @update:turn="turnShowAndEdit" />
 </template>
 
-<style scoped></style>
+<style scoped>
+</style>

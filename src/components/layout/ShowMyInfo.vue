@@ -2,8 +2,7 @@
 import type { PersonalInfo } from '@/types';
 import { useUserStore } from '@/stores/user';
 import UpdatePassword from '../dialog/UpdatePassword.vue';
-import { ref } from 'vue';
-import { textProps } from 'element-plus';
+import { ref, watch } from 'vue';
 
 const userStore = useUserStore();
 const props = defineProps<{
@@ -22,7 +21,9 @@ function logout() {
   window.location.replace('/')
 }
 const avatarBase64 = ref(userStore.avatarBase64)
-
+watch(() => userStore.avatarBase64, () => {
+  avatarBase64.value = userStore.avatarBase64
+})
 </script>
 
 <template>
@@ -66,7 +67,7 @@ const avatarBase64 = ref(userStore.avatarBase64)
 
 <style scoped>
 main {
-  max-width: 800px;
+  max-width: 80%;
   margin: 0 auto;
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

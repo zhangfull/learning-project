@@ -21,7 +21,7 @@ const pw = reactive<{
 const strength = ref(0)
 watch(() => pw.newPassword, () => {
     strength.value = checkPasswordStrength(pw.newPassword)
-    
+
 }), { deep: true }
 
 const validateOldPassword = (_rule: any, value: string) => {
@@ -53,6 +53,12 @@ const rules = {
 };
 
 async function submitForm() {
+    if (pw.newPassword !== pw.confirmPassword ||
+        pw.newPassword.length < 6 ||
+        pw.newPassword.length > 20 ||
+        pw.newPassword.includes(" ")) {
+            return
+    }
     const result = await handleUpdateUserPassword(pw.oldPassword, pw.newPassword)
     if (result === 0) {
         openSuccessNotice('修改成功')
@@ -80,7 +86,8 @@ function back() {
             <div class="update-box">
                 <el-page-header @back="back" content="修改密码">
                 </el-page-header>
-                <el-form :model="pw" status-icon label-position="left" :rules="rules" label-width="100px" class="update-form">
+                <el-form :model="pw" status-icon label-position="left" :rules="rules" label-width="100px"
+                    class="update-form">
                     <el-form-item label="原密码" prop="oldPassword">
                         <el-input type="password" v-model="pw.oldPassword" autocomplete="off" show-password></el-input>
                     </el-form-item>
@@ -96,14 +103,10 @@ function back() {
                         <el-button type="primary" @click="submitForm()">提交</el-button>
                         <el-button @click="resetForm()">重置</el-button>
                     </el-form-item>
-                    
+
                 </el-form>
-                <el-progress 
-                  :percentage="strength * 20" 
-                  :format="() => '当前密码强度: ' + strength + '/5'"
-                  :stroke-width="20"
-                  :text-inside="true"
-                  style="width: 80%; margin-top: 20px;">
+                <el-progress :percentage="strength * 20" :format="() => '当前密码强度: ' + strength + '/5'" :stroke-width="20"
+                    :text-inside="true" style="width: 80%; margin-top: 20px;">
                 </el-progress>
             </div>
         </div>
@@ -129,7 +132,6 @@ function back() {
 
 .update-box {
     width: 480px;
-    height: 50%;
     background-color: #fff;
     border-radius: 16px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);

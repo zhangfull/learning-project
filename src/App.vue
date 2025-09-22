@@ -89,7 +89,7 @@ onMounted(async () => {
   width: 100%;
   min-height: calc(100vh - 120px);
   margin-top: 60px;
-  background-color: white;
+  background-color: rgb(255, 255, 255);
   box-sizing: border-box;
   /* 确保padding包含在宽度内 */
 }
@@ -100,7 +100,7 @@ onMounted(async () => {
   left: 0;
   width: 100%;
   height: 60px;
-  background: #c1ddfa;
+  background: #cfe3f8;
   color: #fff;
   display: flex;
   justify-content: space-between;

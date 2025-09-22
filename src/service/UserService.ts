@@ -20,7 +20,6 @@ export const handleUpdateUserInfo = async (info: PersonalInfo): Promise<number> 
     }
     const result = await updateUserInfoRequest(info)
     if (result === 0) {
-        userStore.updateUserName(info.name)
         console.log("更新用户信息成功")
     }
     return result
