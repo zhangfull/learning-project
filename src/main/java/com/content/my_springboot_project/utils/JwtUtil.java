@@ -17,8 +17,6 @@ public class JwtUtil {
     private static final String SECRET = "my-super-secret-key-1234567890-my-super-secret-key";
     private static final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
-    // 过期时间（7天）
-    private static final long EXPIRATION = 1000 * 60 * 60 * 24 * 7;
 
     /**
      * 生成 token
@@ -26,13 +24,13 @@ public class JwtUtil {
      * @param claims  你要放进 token 的自定义数据
      * @param subject 一般是用户名或用户ID
      */
-    public static String generateToken(Map<String, Object> claims) {
+    public static String generateToken(Map<String, Object> claims, long exception) {
         try {
             claims.put("id", AESUtil.encrypt(claims.get("id").toString()));
             return Jwts.builder()
                     .setClaims(claims) // 自定义数据
                     .setIssuedAt(new Date()) // 签发时间
-                    .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION)) // 过期时间
+                    .setExpiration(new Date(System.currentTimeMillis() + exception)) // 过期时间
                     .signWith(key, SignatureAlgorithm.HS256) // 签名算法
                     .compact();
         } catch (Exception e) {

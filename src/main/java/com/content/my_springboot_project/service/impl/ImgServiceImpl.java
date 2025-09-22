@@ -45,12 +45,11 @@ public class ImgServiceImpl implements ImgService {
 
     @Override
     public Result<String> getImg(String url) throws IOException {
-        Log.info(getClass(), "前端请求的头像地址：{}", url);
-        File file = new File(url);
-        if (!file.exists()) {
-            Log.info(getClass(), "文件不存在：{}", url);
-            file = new File(AVATARPATH + "default.txt");
+        if (url == null || url.isEmpty()) {
+            url = AVATARPATH + "default.txt";
         }
+        Log.info(getClass(), "前端请求的最终头像地址：{}", url);
+        File file = new File(url);
         StringBuilder content = new StringBuilder();
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {

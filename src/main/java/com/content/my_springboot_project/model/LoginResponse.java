@@ -12,6 +12,6 @@ public class LoginResponse {
   private String uid;
   private String email;
   private String avatarUrl;
-  private String token;
+  private String accessToken;
   private String free;
 }

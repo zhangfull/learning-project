@@ -38,15 +38,14 @@ public class CheckLoginStateAspect {
         try {
             // 获取请求头中的 JWT 令牌
             String token = request.getHeader("Authorization");
-            Log.info(getClass(), "token not empty:{}", !(token==null));
+            Log.info(getClass(), "token not empty:{}", !(token == null));
             Map<String, String> stringObjectMap = JwtUtil.parseToken(token);
             if (stringObjectMap == null) {
                 throw new OperationException(43, "身份验证失败，请重新登录");
             }
             Long userId = Long.parseLong(stringObjectMap.get("id"));
-            Log.info(getClass(), "操作的用户ID：{}", userId);
-            ThreadLocalUtil.set(userId);
 
+            ThreadLocalUtil.set(userId);
         } catch (Exception e) {
             return Result.error(43, "not login");
         }
