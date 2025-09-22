@@ -10,7 +10,6 @@ const errorStore = useErrorStore()
 const notice = ref<string | boolean>(false)
 const userName = ref('')
 const avatarBase64 = ref('')
-const isLogin = ref(false)
 const userStore = useUserStore()
 
 const loginShow = ref(false)
@@ -21,7 +20,6 @@ function openLogin() {
 
 function handleLoginSuccess() {
   console.log("主动登录成功")
-  isLogin.value = true
   userName.value = userStore.userName
   avatarBase64.value = userStore.avatarBase64
 }
@@ -37,13 +35,11 @@ onMounted(async () => {
   const success = await userStore.autoLogin()
   if (success) {
     userName.value = userStore.userName
-    isLogin.value = true
     avatarBase64.value = userStore.avatarBase64
     console.log("用户已登录，用户名：" + userStore.userName)
     return
   }
   console.log("用户未登录")
-  isLogin.value = false
 });
 
 </script>
@@ -57,11 +53,11 @@ onMounted(async () => {
       <nav class="nav-links">
         <router-link to="/">首页</router-link>
         <router-link to="/files">列表</router-link>
-        <router-link to="/upload" v-if="isLogin">上传</router-link>
+        <router-link to="/upload" v-if="avatarBase64">上传</router-link>
         <router-link to="/about">关于</router-link>
-        <a href="#" v-if="!isLogin" @click.prevent="openLogin">登录</a>
+        <a href="#" v-if="!avatarBase64" @click.prevent="openLogin">登录</a>
       </nav>
-      <div class="user-section" v-if="isLogin">
+      <div class="user-section" v-if="avatarBase64">
         <router-link to="/individual" class="special-link"><img class="avatar" :src=avatarBase64 alt="用户头像"
             exact-active-class="active" /></router-link>
       </div>

@@ -47,7 +47,7 @@ export const registerRequest = async (userInfo: RegisterInfo): Promise<number> =
 }
 
 
-export const refreshTokenRequest = async (): Promise<[number, string]> => {
+export const refreshTokenRequest = async (): Promise<[number, UserInfo | null]> => {
     try {
         const response = await axiosInstance.post(
             '/api/login/refresh', {}, { withCredentials: true }
