@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.content.my_springboot_project.mapper.FileMapper">
+
+  <select id="searchFiles" resultType="com.content.my_springboot_project.model.DisplayFile"> SELECT
+    * FROM file_info <where>
+      <if test="fileRequestCondition.fileSearchCondition != null">
+        <if
+          test="fileRequestCondition.fileSearchCondition.searchTerm != null and fileRequestCondition.fileSearchCondition.searchTerm != ''">
+    AND file_name LIKE CONCAT('%', #{fileRequestCondition.fileSearchCondition.searchTerm}, '%') </if>
+
+            <if
+          test="fileRequestCondition.fileSearchCondition.resourceType != null and fileRequestCondition.fileSearchCondition.resourceType != ''">
+    AND file_type = #{fileRequestCondition.fileSearchCondition.resourceType} </if>
+
+            <if
+          test="fileRequestCondition.fileSearchCondition.startDate != null"> AND created_time >=
+    #{fileRequestCondition.fileSearchCondition.startDate} </if>
+      </if>
+    </where> ORDER BY <choose>
+      <when test="fileRequestCondition.fileSearchCondition.order == 'mostCollected'">
+    collection_count DESC </when>
+      <when test="fileRequestCondition.fileSearchCondition.order == 'newest'"> upload_date DESC </when>
+      <otherwise> id DESC </otherwise>
+    </choose> 
+    LIMIT #{offset}, #{pageSize}
+  </select>
+
+
+  <select id="countSearchFiles" resultType="long">
+    SELECT COUNT(*) 
+    FROM file_info
+    <where>
+        <if test="fileRequestCondition.fileSearchCondition != null">
+            <if test="fileRequestCondition.fileSearchCondition.searchTerm != null and fileRequestCondition.fileSearchCondition.searchTerm != ''">
+                AND file_name LIKE CONCAT('%', #{fileRequestCondition.fileSearchCondition.searchTerm}, '%')
+            </if>
+
+            <if test="fileRequestCondition.fileSearchCondition.resourceType != null and fileRequestCondition.fileSearchCondition.resourceType != ''">
+                AND file_type = #{fileRequestCondition.fileSearchCondition.resourceType}
+            </if>
+
+            <if test="fileRequestCondition.fileSearchCondition.startDate != null">
+                AND created_time >= #{fileRequestCondition.fileSearchCondition.startDate}
+            </if>
+        </if>
+    </where>
+</select>
+
+
+</mapper>
