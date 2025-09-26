@@ -20,6 +20,11 @@ export interface PersonalInfo {
   myFollowersCount: number
 }
 
+export interface LoginInfo {
+  emailOrUid: string
+  password: string
+}
+
 export interface RegisterInfo {
   userName: string
   email: string

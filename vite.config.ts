@@ -17,7 +17,7 @@ export default defineConfig({
       changeOrigin: true,
       rewrite: path => path.replace(/^\/api/, ''),
       configure: (proxy) => {
-        proxy.on('proxyReq', (proxyReq, req, res) => {
+        proxy.on('proxyReq', (proxyReq, req, _res) => {
           if (req.headers.authorization) {
             proxyReq.setHeader('Authorization', req.headers.authorization);
           }

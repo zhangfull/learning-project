@@ -2,23 +2,18 @@
 import { handleFileDetail } from '@/service/FileService';
 import type { DetailFile } from '@/types';
 import { onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { Loading } from '@element-plus/icons-vue'
 
-const router = useRouter()
 const route = useRoute()
 let id = Number(route.params.id)
 // 返回列表
 function goBack() {
-    router.push({ path: '/files', query: { from: 'detail' } })
+    window.close()
 }
 
 const fileDetail = ref<DetailFile | null>(null);
 onMounted(() => {
-    window.scrollTo({
-        top: 0,
-        behavior: 'instant'
-    })
     handleFileDetail(id).then(detail => {
         fileDetail.value = detail;
     });

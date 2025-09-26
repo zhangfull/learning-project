@@ -2,8 +2,8 @@
 import { handleGetUserInfo } from '@/service/UserService';
 import type { PersonalInfo } from '@/types';
 import { onMounted, ref } from 'vue';
-import ShowMyInfo from '@/components/layout/ShowMyInfo.vue';
-import EditMyInfo from '@/components/layout/EditMyInfo.vue';
+import ShowMyInfo from '@/components/ShowMyInfo.vue';
+import EditMyInfo from '@/components/EditMyInfo.vue';
 import { openErrorNotice } from '@/utils/noticeUtils';
 
 const personalInfo = ref<PersonalInfo | null>(null);

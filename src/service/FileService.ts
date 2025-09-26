@@ -1,5 +1,6 @@
 import { getFileDetailRequest, getFileListRequest } from "@/api/FilesApi";
-import type { FileRequestCondition, FilePage, FileSearchCondition, DetailFile, ResourceTypes } from "@/types";
+import type { FileRequestCondition, FilePage, FileSearchCondition, DetailFile } from "@/types";
+import { ResourceTypes } from "@/types";
 
 // 判断是否为搜索
 export const handleIsSearch = (fsc: FileSearchCondition): boolean => {
@@ -45,7 +46,7 @@ export const handlePageAcquisition = async (frc: FileRequestCondition): Promise<
     fp.results = response.results.map(item => {
         return {
             ...item,
-            fileType: item.fileType as keyof typeof ResourceTypes,
+            fileType: ResourceTypes[item.fileType as keyof typeof ResourceTypes],
             uploadDate: new Date(item.uploadDate).toLocaleDateString('zh-CN')
         }
     })

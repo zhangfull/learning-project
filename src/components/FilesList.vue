@@ -2,11 +2,8 @@
 import { handlePageAcquisition, handleIsSearch } from '@/service/FileService';
 import { ResourceTypes, type DisplayFile, type FilePage, type FileRequestCondition, type FileSearchCondition } from '@/types';
 import { onMounted, reactive, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 import { Loading } from '@element-plus/icons-vue'
 
-const router = useRouter()
-const route = useRoute()
 let timer: number | null = null
 const version = ref(0)
 const currentPage = ref(1)
@@ -99,44 +96,14 @@ function jumpPage(page: number) {
     currentPage.value = page
     submitSearch(page)
 }
-// 页面滚动位置和分页信息
-const pageInfo = ref({
-    y: 0,
-    pageIndex: 0,
-})
 
 // 跳转到文件详情页
 function goToFile(row: DisplayFile) {
-    const fileId = row.id
-    // 保存当前滚动位置和页码
-    pageInfo.value.y = window.scrollY || document.documentElement.scrollTop
-    pageInfo.value.pageIndex = currentPage.value
-    const jsonStr = JSON.stringify(pageInfo.value)
-    localStorage.setItem('pageInfo', jsonStr)
-    //同步变量
-    console.log('跳转到文件详情页，文件ID:', fileId)
-    router.push({ name: 'detail', params: { id: fileId } })
+    const url = `/display/detail/${row.id}`; // 拼接路由路径
+    window.open(url, '_blank');       // _blank 表示新标签页打开
 }
 
 onMounted(async () => {
-    const jsonStr = localStorage.getItem('pageInfo') || '{}'
-    const parsed = JSON.parse(jsonStr)
-    pageInfo.value = parsed
-    if (pageInfo.value.pageIndex !== 0 && pageInfo.value.pageIndex !== null && pageInfo.value.pageIndex !== undefined) {
-        if (route.query.from === 'detail') {
-            router.replace({ path: '/files' })
-            console.log("重返回列表:", pageInfo.value.pageIndex)
-            currentPage.value = pageInfo.value.pageIndex
-            await submitSearch(pageInfo.value.pageIndex)
-            localStorage.removeItem('pageInfo')
-            window.scrollTo({
-                top: pageInfo.value.y,
-                behavior: 'instant'
-            })
-            return
-        }
-    }
-    localStorage.removeItem('pageInfo')
     submitSearch(1);
 });
 </script>
@@ -151,6 +118,7 @@ onMounted(async () => {
                         placeholder="请输入搜索关键词" />
                 </div>
                 <div class="filters-container">
+                    
                     <!-- 资源类型选择框 -->
                     <label for="resourceType">资源类型:</label>
                     <select id="resourceType" v-model="fileSearchCondition.resourceType">

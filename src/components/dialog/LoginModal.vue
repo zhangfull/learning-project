@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { handleLogin, handleRegister } from '@/service/LoginService';
-import type { RegisterInfo } from '@/types';
+import type { LoginInfo, RegisterInfo } from '@/types';
 import { checkPasswordStrength } from '@/utils/inspectionTool';
+import { login_rules, register_rules } from '@/utils/validateRules';
+import { openErrorNotice, openSuccessNotice } from '@/utils/noticeUtils';
 
 const emit = defineEmits<{
   (e: 'update:showLogin'): void
@@ -13,18 +15,28 @@ function closeLoginDialog() {
   emit('update:showLogin')
 };
 const loginOrRegister = ref('login') // 'login' 或 'register'
-const emailOrUid = ref('')
-const password = ref('')
-const hint = ref('')
+const loginInfo = ref<LoginInfo>({ emailOrUid: '', password: '' });
+
+const loginFormRef = ref()
+const registerFormRef = ref()
+
+const formLoading = ref(false)
 async function login() {
-  const [success, message] = await handleLogin(emailOrUid.value, password.value);
-  if (success) {
-    hint.value = ''
-    emit('update:showLogin')
-    emit('loginSuccess')
-  } else {
-    hint.value = message
-  }
+  loginFormRef.value.validate(async (valid: boolean) => {
+    if (!valid) {
+      openErrorNotice('登陆失败')
+      return
+    }
+    formLoading.value = true
+    const [success, message] = await handleLogin(loginInfo.value.emailOrUid, loginInfo.value.password);
+    if (success) {
+      emit('update:showLogin')
+      emit('loginSuccess')
+    } else {
+      openErrorNotice(message)
+    }
+    formLoading.value = false
+  })
 }
 
 const registerInfo = ref<RegisterInfo>({
@@ -33,33 +45,36 @@ const registerInfo = ref<RegisterInfo>({
   password: '',
   confirmPassword: ''
 })
+
 watch(() => registerInfo.value.password, () => {
   const strength = checkPasswordStrength(registerInfo.value.password)
-  hint.value = '密码强度：' + strength + '/6'
+  const hint = '密码强度：' + strength + '/6'
 }), { deep: true }
+
 async function register() {
-  if (registerInfo.value.password !== registerInfo.value.confirmPassword) {
-    hint.value = '两次输入的密码不一致'
-    return
-  }
-  if (registerInfo.value.password.length < 6) {
-    hint.value = '密码长度至少为6位'
-    return
-  }
-  if (registerInfo.value.password.includes(" ")) {
-    hint.value = '密码不能含空格'
-    return
-  }
-  const result = await handleRegister(registerInfo.value);
-  if (result === 1) {
-    hint.value = '注册失败，邮箱已被使用'
-    return
-  } else if (result === 2) {
-    hint.value = '注册失败，网络错误'
-    return
-  }
-  hint.value = '注册成功，请登录'
-  loginOrRegister.value = 'login'
+  registerFormRef.value.validate(async (valid: boolean) => {
+    if (!valid) {
+      openErrorNotice('注册失败')
+      return
+    }
+    if (registerInfo.value.password !== registerInfo.value.confirmPassword) {
+      openErrorNotice('两次输入的密码不一致')
+      return
+    }
+
+    formLoading.value = true
+    const result = await handleRegister(registerInfo.value);
+    formLoading.value = false
+    if (result === 1) {
+      openErrorNotice('注册失败，邮箱已被使用')
+      return
+    } else if (result === 2) {
+      openErrorNotice('网络错误，请重试')
+      return
+    }
+    openSuccessNotice('注册成功')
+    loginOrRegister.value = 'login'
+  })
 }
 </script>
 
@@ -69,24 +84,39 @@ async function register() {
       <div class="login-box">
         <button @click="closeLoginDialog">关闭</button>
         <div v-if="loginOrRegister === 'login'">
-          <form @submit.prevent="login">
-            <input v-model="emailOrUid" type="text" placeholder="邮箱或UID" required />
-            <input v-model="password" type="password" placeholder="密码" required />
-            <button type="submit">登录</button>
-          </form>
+          <ElForm :model="loginInfo" :rules="login_rules" ref="loginFormRef" label-width="100px">
+            <ElFormItem label="邮箱或UID" prop="emailOrUid">
+              <ElInput v-model="loginInfo.emailOrUid" placeholder="请输入邮箱或UID" />
+            </ElFormItem>
+            <ElFormItem label="密码" prop="password">
+              <ElInput v-model="loginInfo.password" placeholder="请输入密码" />
+            </ElFormItem>
+            <ElButton type="primary" :loading="formLoading" @click="login">
+              登陆
+            </ElButton>
+          </ElForm>
           <button @click="loginOrRegister = 'register'">注册</button>
         </div>
         <div v-else>
-          <form @submit.prevent="register">
-            <input v-model="registerInfo.userName" type="text" placeholder="用户名" required />
-            <input v-model="registerInfo.email" type="email" placeholder="邮箱" required />
-            <input v-model="registerInfo.password" type="password" placeholder="密码" required />
-            <input v-model="registerInfo.confirmPassword" type="password" placeholder="确认密码" required />
-            <button type="submit">注册</button>
-          </form>
+          <ElForm :model="registerInfo" :rules="register_rules" ref="registerFormRef" label-width="100px">
+            <ElFormItem label="用户名" prop="userName">
+              <ElInput v-model="registerInfo.userName" placeholder="请输入用户名" />
+            </ElFormItem>
+            <ElFormItem label="邮箱" prop="email">
+              <ElInput v-model="registerInfo.email" placeholder="请输入邮箱" />
+            </ElFormItem>
+            <ElFormItem label="密码" prop="password">
+              <ElInput v-model="registerInfo.password" placeholder="请输入密码" />
+            </ElFormItem>
+            <ElFormItem label="确认密码" prop="confirmPassword">
+              <ElInput v-model="registerInfo.confirmPassword" placeholder="请输入确认密码" />
+            </ElFormItem>
+            <ElButton type="primary" :loading="formLoading" @click="register">
+              注册
+            </ElButton>
+          </ElForm>
           <button @click="loginOrRegister = 'login'">已有账号？登录</button>
         </div>
-        <p style="color: red;">{{ hint }}</p>
       </div>
     </div>
   </Teleport>

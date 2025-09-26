@@ -2,7 +2,7 @@
 import type { UserInfo } from '@/types'
 import { defineStore } from 'pinia'
 import { handleGetAvatarImg } from '@/service/ImgService'
-import { openErrorNotice } from '@/utils/noticeUtils'
+import { openErrorNotice, openWarningNotice } from '@/utils/noticeUtils'
 import { refreshTokenRequest } from '@/api/LoginApi'
 
 interface UserState {
@@ -48,30 +48,30 @@ export const useUserStore = defineStore('user', {
                 console.log("重新加载了 token");
             }
         },
-        async autoLogin() {
-            console.log("ssssssssssssssssssssssssss");
+        async refreshLogin() {
             try {
                 // 检查token是否存在
+                console.log("开始调用 refreshTokenRequest...");
                 const [code, data] = await refreshTokenRequest();
+                console.log("refreshTokenRequest 返回结果:", { code, data });
+                
                 if (code === 0) {
-                    this.setUser(data!)
+                    console.log("Token 刷新成功，设置用户信息");
+                    await this.setUser(data!)
+                    console.log("用户信息设置完成");
                 } else {
+                    console.log("Token 刷新失败，执行登出操作");
                     localStorage.removeItem('accessToken')
-                    useUserStore().logout();
+                    this.avatarBase64 = await handleGetAvatarImg(this.avatarUrl)
+                    this.logout();
                     console.log("Token 已过期，用户已登出")
                     openErrorNotice("登陆已过期，请重新登录")
                 }
-                // 检查
-                if (this.avatarBase64 && this.avatarBase64 !== '') {
-                    return true;
-                } else {
-                    // 尝试自动登录
-                    this.avatarBase64 = await handleGetAvatarImg(this.avatarUrl)
-                    console.log('尝试自动登录touxiang');
-                    return true;
-                }
+                console.log("autoLogin 执行完成，返回 true");
+                return true
             } catch (error) {
                 console.error('autoLogin 方法执行出错:', error);
+                console.error('错误详情:', error);
                 return false;
             }
 

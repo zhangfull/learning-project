@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PersonalInfo } from '@/types';
 import { useUserStore } from '@/stores/user';
-import UpdatePassword from '../dialog/UpdatePassword.vue';
+import UpdatePassword from '@/components/dialog/UpdatePassword.vue';
 import { ref, watch } from 'vue';
 
 const userStore = useUserStore();

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import FilesList from '@/components/layout/FilesList.vue';
+import FilesList from '@/components/FilesList.vue';
 import { onMounted, ref } from 'vue';
 
 const id = ref<number>(0);

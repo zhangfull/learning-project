@@ -1,11 +1,8 @@
-import { useUserStore } from '@/stores/user';
 import axios from 'axios';
 import { openErrorNotice, openWarningNotice } from './noticeUtils';
-import { refreshTokenRequest } from '@/api/LoginApi';
-
+import { useUserStore } from '@/stores/user';
 // 创建统一的 axios 实例
 const axiosInstance = axios.create();
-
 // 请求拦截器
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -33,27 +30,20 @@ axiosInstance.interceptors.request.use(
 // 响应拦截器
 axiosInstance.interceptors.response.use(
   async (response) => {
+    const userStore = useUserStore()
     if (response.data.code === 110) {
       console.log("异常：", response.data.message)
-      throw new Error(response.data.message)
+      openErrorNotice(response.data.message);
     }
     if (response.data.code === 43) {
-      const [code, data] = await refreshTokenRequest();
-      if (code === 0) {
-        localStorage.setItem('accessToken', data)
-        openWarningNotice("请求丢失请刷新重试")
-      } else {
-        localStorage.removeItem('accessToken')
-        useUserStore().logout();
-        console.log("Token 已过期，用户已登出")
-        openErrorNotice("登陆已过期，请重新登录")
-      }
-
+      await userStore.refreshLogin()
+      openWarningNotice('网络异常请刷新页面');
     }
     return response;
   },
   (error) => {
     // 响应错误处理
+    console.error("响应拦截器错误:", error)
     return Promise.reject(error);
   }
 );

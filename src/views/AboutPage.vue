@@ -2,7 +2,7 @@
 import { useUserStore } from '@/stores/user';
 const userStore = useUserStore()
 function test1() {
-  userStore.autoLogin()
+  userStore.loadTokenFromStorage()
 }
 </script>
 

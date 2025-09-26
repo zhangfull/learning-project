@@ -17,20 +17,6 @@ export const loginRequest = async (emailOrUid: string, password: string): Promis
     }
 };
 
-export const autoLoginRequest = async (): Promise<[UserInfo | null, number]> => {
-    try {
-        const response = await axiosInstance.get(
-            '/api/login/auto'
-        )
-        console.log("后端返回的信息码：", response.data.code)
-        console.log("后端返回的数据：", response.data.data)
-        return [response.data.data, response.data.code]
-    } catch (error) {
-        console.error('获取资源数据失败:', error)
-        throw error;
-    }
-}
-
 export const registerRequest = async (userInfo: RegisterInfo): Promise<number> => {
     try {
         const response = await axiosInstance.post(
