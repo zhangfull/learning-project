@@ -32,12 +32,6 @@ public class LoginController {
         return loginService.activeLogin(request.getEmailOrUid(), request.getPassword(), response);
     }
 
-    @CheckLoginState
-    @GetMapping("/auto")
-    public Result<LoginResponse> autoLogin(HttpServletRequest request) {
-        return loginService.autoLogin();
-    }
-
     @PostMapping("/register")
     public Result<String> register(@RequestBody RegisterInfo request) {
         return loginService.register(request.getUserName(), request.getEmail(), request.getPassword());

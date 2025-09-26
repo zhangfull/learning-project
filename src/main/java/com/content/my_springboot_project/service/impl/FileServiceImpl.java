@@ -66,7 +66,6 @@ public class FileServiceImpl implements FileService {
         } else {
             int offset = (fileRequestCondition.getNeedPage().intValue() - 1) * defaultPageSize;
             List<DisplayFile> searchFiles = fileMapper.searchFiles(fileRequestCondition, offset, defaultPageSize);
-            Log.info(getClass(), "获取文件列表{}", searchFiles);
             filePage.setResults(searchFiles);
             filePage.setCurrentPage(fileRequestCondition.getNeedPage());
             long count = fileMapper.countSearchFiles(fileRequestCondition);

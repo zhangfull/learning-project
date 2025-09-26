@@ -9,8 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface LoginService {
     Result<LoginResponse> activeLogin(String emailOrUid, String password, HttpServletResponse response);
 
-    public Result<LoginResponse> autoLogin();
-
     Result<String> register(String userName, String email, String password);
 
     Result<LoginResponse> refreshLogin(String refreshToken);

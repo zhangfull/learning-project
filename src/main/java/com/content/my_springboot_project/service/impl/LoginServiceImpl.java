@@ -78,32 +78,6 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public Result<LoginResponse> autoLogin() {
-        Long id = ThreadLocalUtil.getLongId();
-        Log.info(getClass(), "自动登录用户ID: {}", id);
-        Optional<UserView> byId = userRepository.findByIdForUserView(id);
-        if (byId.isEmpty()) {
-            Log.info(getClass(), "自动登录用户ID为空");
-            return Result.error(2, "用户不存在");
-        }
-        UserView user = byId.get();
-        LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setUserName(user.getName());
-        loginResponse.setEmail(user.getEmail());
-        loginResponse.setUid(user.getUid());
-        loginResponse.setFree(null);
-        loginResponse.setAvatarUrl(user.getAvatarUrl());
-        Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("email", user.getEmail());
-        userInfo.put("id", user.getId());
-        loginResponse.setAccessToken(JwtUtil.generateToken(userInfo, 1000 * 60 * 10));
-        if (loginResponse.getAccessToken() == null) {
-            throw new OperationException(-1, "token生成失败");
-        }
-        return Result.success(loginResponse);
-    }
-
-    @Override
     public Result<String> register(String userName, String email, String password) {
         if (userRepository.existsByEmail(email)) {
             return Result.error(1, String.format("%s邮箱已被注册:", email));

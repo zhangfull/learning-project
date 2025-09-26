@@ -27,7 +27,7 @@ public class FileController {
     public Result<FilePage> getFiles(@RequestBody FileRequestCondition fileRequestCondition) {
         Log.info(getClass(), "获取文件列表条件：{}", fileRequestCondition);
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             Log.info(getClass(), "线程被中断: {}", e.getMessage());
