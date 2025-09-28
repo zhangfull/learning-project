@@ -6,15 +6,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
-import com.content.my_springboot_project.security.CustomUserDetail;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -27,15 +22,15 @@ public class JwtUtil {
     /**
      * 生成 token
      * 
-     * @param claims  你要放进 token 的自定义数据
      * @param subject 一般是用户名或用户ID
+     * Map<String, Object> claims, // 自定义数据
      */
 
-    public String generateToken(CustomUserDetail userDetails, Map<String, Object> claims, long exception) {
+    public String generateToken(String emailOrUid,  long exception) {
         try {
             return Jwts.builder()
-                    .setSubject(userDetails.getUsername())
-                    .setClaims(claims) // 自定义数据
+                    .setSubject(emailOrUid)
+                    // .setClaims(claims) // 自定义数据
                     .setIssuedAt(new Date()) // 签发时间
                     .setExpiration(new Date(System.currentTimeMillis() + exception)) // 过期时间
                     .signWith(key, SignatureAlgorithm.HS256) // 签名算法

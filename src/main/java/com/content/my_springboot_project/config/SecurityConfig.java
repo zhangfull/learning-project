@@ -8,6 +8,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -36,15 +37,18 @@ import jakarta.servlet.http.HttpServletResponse;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomUserDetailsServiceImpl customUserDetailsService;
     private final JwtUtil jwtUtil;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-            CustomUserDetailsServiceImpl customUserDetailsService,
+
             JwtUtil jwtUtil) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.customUserDetailsService = customUserDetailsService;
         this.jwtUtil = jwtUtil;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
 
     @Bean
@@ -53,16 +57,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
-        return auth.build();
-    }
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager)
+            throws Exception {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        AuthenticationManager authManager = http.getSharedObject(AuthenticationManager.class);
-        CustomAuthenticationFilter cFilter = new CustomAuthenticationFilter(authManager);
-        cFilter.setFilterProcessesUrl("/login");
+        CustomAuthenticationFilter cFilter = new CustomAuthenticationFilter(authenticationManager);
+        cFilter.setFilterProcessesUrl("/login/active");
         cFilter.setAllowSessionCreation(false);
         cFilter.setAuthenticationSuccessHandler((request, response, authentication) -> {
             response.setContentType("application/json");
@@ -90,18 +89,20 @@ public class SecurityConfig {
         });
 
         http
+                .authenticationManager(authenticationManager)
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/**") // 先忽略全部
+                        .ignoringRequestMatchers("/**")
                         .requireCsrfProtectionMatcher(request -> "/refresh".equals(request.getServletPath())))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/login", "/refresh", "/getFiles").permitAll()
+                        .requestMatchers("/login", "/file/getFiles").permitAll()
                         .requestMatchers("/img/**").hasRole("USER")
                         .requestMatchers("/**").authenticated()
                         .anyRequest().authenticated())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .addFilter(cFilter)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
@@ -110,9 +111,9 @@ public class SecurityConfig {
         CustomUserDetail user = (CustomUserDetail) auth.getPrincipal();
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setAvatarUrl(user.getAvatarUrl());
-        String accessToken = jwtUtil.generateToken(user, null, 1000 * 60 * 10);
+        String accessToken = jwtUtil.generateToken(user.getUsername(), 1000 * 60 * 10);
         loginResponse.setAccessToken(accessToken);
-        String refreshToken = jwtUtil.generateToken(user, null, 1000 * 60 * 60 * 24 * 7);
+        String refreshToken = jwtUtil.generateToken(user.getUsername(), 1000 * 60 * 60 * 24 * 7);
         Cookie cookie = new Cookie("refresh_token", refreshToken);
         cookie.setHttpOnly(true);
         cookie.setSecure(false); // 开发环境 false，生产 true

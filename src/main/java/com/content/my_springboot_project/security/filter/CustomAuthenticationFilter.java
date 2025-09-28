@@ -7,9 +7,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.content.my_springboot_project.utils.Log;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -30,10 +30,14 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                     });
             String emailOrUid = map.get("emailOrUid");
             String password = map.get("password");
+            Log.info(getClass(), "emailOrUid: {}, password: {}", emailOrUid, password);
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(emailOrUid,
                     password);
             return this.getAuthenticationManager().authenticate(authToken);
         } catch (Exception e) {
+            if (e instanceof AuthenticationException) {
+                throw (AuthenticationException) e;
+            }
             throw new RuntimeException(e);
         }
     }

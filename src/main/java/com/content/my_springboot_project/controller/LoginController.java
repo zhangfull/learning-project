@@ -5,12 +5,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.content.my_springboot_project.model.LoginRequest;
 import com.content.my_springboot_project.model.LoginResponse;
 import com.content.my_springboot_project.model.RegisterInfo;
 import com.content.my_springboot_project.model.Result;
 import com.content.my_springboot_project.service.LoginService;
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/login")
@@ -19,11 +17,6 @@ public class LoginController {
     private final LoginService loginService;
     public LoginController(LoginService loginService) {
         this.loginService = loginService;
-    }
-
-    @PostMapping("/active")
-    public Result<LoginResponse> activeLogin(@RequestBody LoginRequest request, HttpServletResponse response) {
-        return loginService.activeLogin(request.getEmailOrUid(), request.getPassword(), response);
     }
 
     @PostMapping("/register")
@@ -36,6 +29,5 @@ public class LoginController {
         //Log.info(getClass(), "refreshToken: {}", refreshToken);
         return loginService.refreshLogin(refreshToken);
     }
-    
     
 }
