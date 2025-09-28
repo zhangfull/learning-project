@@ -14,7 +14,7 @@
     AND file_type = #{fileRequestCondition.fileSearchCondition.resourceType} </if>
 
             <if
-          test="fileRequestCondition.fileSearchCondition.startDate != null"> AND created_time >=
+          test="fileRequestCondition.fileSearchCondition.startDate != null"> AND created_time <=
     #{fileRequestCondition.fileSearchCondition.startDate} </if>
       </if>
     </where> ORDER BY <choose>
@@ -41,7 +41,7 @@
             </if>
 
             <if test="fileRequestCondition.fileSearchCondition.startDate != null">
-                AND created_time >= #{fileRequestCondition.fileSearchCondition.startDate}
+                AND created_time <= #{fileRequestCondition.fileSearchCondition.startDate}
             </if>
         </if>
     </where>

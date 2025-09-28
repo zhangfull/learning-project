@@ -1,21 +1,15 @@
 package com.content.my_springboot_project.controller;
 
 import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.content.my_springboot_project.annotation.CheckLoginState;
 import com.content.my_springboot_project.model.LoginRequest;
 import com.content.my_springboot_project.model.LoginResponse;
 import com.content.my_springboot_project.model.RegisterInfo;
 import com.content.my_springboot_project.model.Result;
 import com.content.my_springboot_project.service.LoginService;
-import com.content.my_springboot_project.utils.Log;
-
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController

@@ -3,6 +3,7 @@ package com.content.my_springboot_project.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import com.content.my_springboot_project.model.Result;
 import com.content.my_springboot_project.repository.FileInfoRepository;
 import com.content.my_springboot_project.service.FileService;
 import com.content.my_springboot_project.utils.Log;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -39,15 +41,15 @@ public class FileServiceImpl implements FileService {
         FilePage filePage = new FilePage();
         filePage.setPageSize(defaultPageSize);
         if (!fileRequestCondition.getIsFiltered()) {
-            Pageable pageable = PageRequest.of(fileRequestCondition.getNeedPage().intValue()-1, defaultPageSize);
-            List<FileInfoProjection> allForDisplay = fileInfoRepository.findAllForDisplay(pageable);
+            Pageable pageable = PageRequest.of(fileRequestCondition.getNeedPage().intValue() - 1, defaultPageSize);
+            Page<FileInfoProjection> allForDisplay = fileInfoRepository.findAllForDisplay(pageable);
             if (allForDisplay.isEmpty()) {
                 Log.info(getClass(), "获取文件列表为空");
                 return Result.success(null);
             }
             List<DisplayFile> displayFiles = new ArrayList<>();
             try {
-                for (FileInfoProjection fileInfo : allForDisplay) {
+                for (FileInfoProjection fileInfo : allForDisplay.getContent()) {
                     displayFiles.add(new DisplayFile(fileInfo));
                 }
             } catch (Exception e) {
@@ -56,12 +58,9 @@ public class FileServiceImpl implements FileService {
             }
             filePage.setResults(displayFiles);
             filePage.setCurrentPage(fileRequestCondition.getNeedPage());
-            long count = fileInfoRepository.count();
-            if (count % defaultPageSize == 0) {
-                filePage.setTotalPages(count / defaultPageSize);
-            } else {
-                filePage.setTotalPages(count / defaultPageSize + 1);
-            }
+
+            filePage.setTotalPages((long)allForDisplay.getTotalPages());
+            //filePage.setLatestVersion(1L);
             filePage.setLatestVersion(2L);
         } else {
             int offset = (fileRequestCondition.getNeedPage().intValue() - 1) * defaultPageSize;
@@ -78,7 +77,10 @@ public class FileServiceImpl implements FileService {
             filePage.setLatestVersion(2L);
         }
         return Result.success(filePage);
+    }
 
+    private void updateVersion(String message) {
+        Log.info(getClass(), message);
     }
 
 }

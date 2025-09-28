@@ -12,8 +12,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u.id AS id, u.name AS name, u.uid AS uid, u.email AS email, " +
             "u.avatarUrl AS avatarUrl, u.password AS password " +
-            "FROM User u WHERE u.email = :email OR u.uid = :uid")
-    Optional<UserView> findByEmailOrUid(String email, String uid);
+            "FROM User u WHERE u.email = :uidOrEmail OR u.uid = :uidOrEmail")
+    Optional<UserView> findByEmailOrUid(String emailOrUid);
 
     @Query("SELECT u.id AS id, u.name AS name, u.uid AS uid, u.email AS email, " +
             "u.avatarUrl AS avatarUrl " +

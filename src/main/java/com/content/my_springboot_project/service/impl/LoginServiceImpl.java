@@ -19,7 +19,6 @@ import com.content.my_springboot_project.utils.GeneratingUtils;
 import com.content.my_springboot_project.utils.JwtUtil;
 import com.content.my_springboot_project.utils.Log;
 import com.content.my_springboot_project.utils.PasswordUtil;
-import com.content.my_springboot_project.utils.ThreadLocalUtil;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,9 +39,8 @@ public class LoginServiceImpl implements LoginService {
     public Result<LoginResponse> activeLogin(String emailOrUid, String password, HttpServletResponse response) {
         LoginResponse loginResponse = new LoginResponse();
         Map<String, Object> userInfo = new HashMap<>();
-
-        userRepository.findByEmailOrUid(emailOrUid, emailOrUid);
-        Optional<UserView> optionalUser = userRepository.findByEmailOrUid(emailOrUid, emailOrUid);
+        
+        Optional<UserView> optionalUser = userRepository.findByEmailOrUid(emailOrUid);
         if (optionalUser.isEmpty()) {
             return Result.error(2, "用户不存在");
         }

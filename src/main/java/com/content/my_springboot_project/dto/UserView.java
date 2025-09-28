@@ -1,5 +1,6 @@
 package com.content.my_springboot_project.dto;
 
+import java.util.Set;
 
 public interface UserView {
     Long getId();
@@ -13,5 +14,7 @@ public interface UserView {
     String getPassword();
 
     String getAvatarUrl();
-    
+
+    Set<RoleView> getRoles();
+
 }
