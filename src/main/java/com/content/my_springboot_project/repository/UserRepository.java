@@ -20,6 +20,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
                         "FROM User u WHERE u.id = :id")
         Optional<UserView> findByIdForUserView(Long id);
 
+        @Query("SELECT u.id AS id FROM User u WHERE u.uid = :emailOrUid OR u.email = :emailOrUid")
+        Optional<Long> findIdByEmailOrUid(String emailOrUid);
+
         boolean existsByEmail(String email);
 
         boolean existsByUid(String uid);

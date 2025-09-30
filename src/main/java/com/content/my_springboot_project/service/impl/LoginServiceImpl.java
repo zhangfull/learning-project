@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.content.my_springboot_project.dto.UserView;
@@ -64,6 +66,9 @@ public class LoginServiceImpl implements LoginService {
         }
     }
 
+    @Value("${file.img.avatarPath}")
+    private String AVATARPATH;
+
     @Override
     public Result<LoginResponse> refreshLogin(String refreshToken) {
         String emailOrUid = jwtUtil.parseToken(refreshToken);
@@ -72,12 +77,17 @@ public class LoginServiceImpl implements LoginService {
         }
         Optional<UserView> user = userRepository.findByEmailOrUid(emailOrUid);
         if (user.isEmpty()) {
-            Log.info(getClass(), "自动登录用户为空:{}",emailOrUid);
+            Log.info(getClass(), "自动登录用户为空:{}", emailOrUid);
             return Result.error(2, "用户不存在");
         }
         UserView current = user.get();
         LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setAvatarUrl(current.getAvatarUrl());
+        if (current.getAvatarUrl() == null || current.getAvatarUrl().isEmpty() || current.getAvatarUrl().trim().isEmpty()) {
+            loginResponse.setAvatarUrl(AVATARPATH + "default.txt");
+        } else {
+            loginResponse.setAvatarUrl(current.getAvatarUrl());
+        }
+        
         loginResponse.setAccessToken(jwtUtil.generateToken(emailOrUid, 1000 * 60 * 10));
         if (loginResponse.getAccessToken() == null) {
             throw new OperationException(-1, "token生成失败");

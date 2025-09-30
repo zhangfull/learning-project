@@ -43,7 +43,7 @@ public class ImgServiceImpl implements ImgService {
     @Override
     public Result<String> getImg(String url) throws IOException {
         if (url == null || url.isEmpty()) {
-            url = AVATARPATH + "default.txt";
+           return Result.error(1, "前端请求的头像地址为空");
         }
         Log.info(getClass(), "前端请求的最终头像地址：{}", url);
         File file = new File(url);

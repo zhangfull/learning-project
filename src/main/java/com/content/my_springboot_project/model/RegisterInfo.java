@@ -1,5 +1,7 @@
 package com.content.my_springboot_project.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class RegisterInfo {
+    @NotNull
+    @NotBlank
     private String userName;
+    @NotNull
+    @NotBlank
     private String email;
+    @NotNull
+    @NotBlank
     private String password;
 }

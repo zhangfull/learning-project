@@ -2,6 +2,8 @@ package com.content.my_springboot_project.service.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,13 +23,14 @@ import com.content.my_springboot_project.utils.Log;
 
 public class CustomUserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    public CustomUserDetailsServiceImpl(UserRepository userRepository, UserMapper userMapper) {
-        this.userRepository = userRepository;
+    public CustomUserDetailsServiceImpl(UserMapper userMapper) {
         this.userMapper = userMapper;
     }
+
+    @Value("${file.img.avatarPath}")
+    private String AVATARPATH;
 
     @Transactional
     @Override
@@ -45,7 +48,13 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
         CustomUserDetail customUserDetail = new CustomUserDetail();
         customUserDetail.setId(user.getId());
         customUserDetail.setUsername(username);
-        customUserDetail.setAvatarUrl(user.getAvatarUrl());
+        if (user.getAvatarUrl() == null || user.getAvatarUrl().isEmpty()
+                || user.getAvatarUrl().trim().isEmpty()) {
+            customUserDetail.setAvatarUrl(AVATARPATH + "default.txt");
+        } else {
+            customUserDetail.setAvatarUrl(user.getAvatarUrl());
+        }
+        Log.info(getClass(), "用户：[" + username + "]的头像是：{}", user.getAvatarUrl());
         customUserDetail.setPassword(user.getPassword());
         customUserDetail.setAuthorities(roles);
         return customUserDetail;

@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class FilePage {
+public class FilePage<T> {
     Long currentPage;
     Long totalPages;
     Integer pageSize;
     Long latestVersion;
-    List<DisplayFile> results;
+    List<T> results;
 }

@@ -25,15 +25,17 @@ public class ThreadLocalUtil {
 
     public static Long getLongId() {
         Object value = THREAD_LOCAL.get();
-
+        ThreadLocalUtil.remove();
+        Long id = null;
         if (value instanceof Number) {
-            return ((Number) value).longValue();
+            id = ((Number) value).longValue();
         } else if (value instanceof String) {
-            return Long.parseLong((String) value);
+            id = Long.parseLong((String) value);
         } else if (value != null) {
             throw new OperationException(-1, "ThreadLocal 中的值不能转换为 Long 类型: " + value.getClass());
         } else {
             throw new OperationException(-1, "ThreadLocal 中的值为空");
         }
+        return id;
     }
 }

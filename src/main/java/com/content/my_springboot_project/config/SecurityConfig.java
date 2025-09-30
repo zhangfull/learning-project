@@ -95,9 +95,9 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/**")
                         .requireCsrfProtectionMatcher(request -> "/refresh".equals(request.getServletPath())))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/login", "/file/getFiles").permitAll()
-                        .requestMatchers("/img/**").hasRole("USER")
-                        .requestMatchers("/**").authenticated()
+                        .requestMatchers("/login/**", "/file", "/img/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("USER")
+                        .requestMatchers("/user/**").authenticated()
                         .anyRequest().authenticated())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .addFilter(cFilter)

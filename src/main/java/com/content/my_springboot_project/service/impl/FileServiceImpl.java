@@ -2,6 +2,7 @@ package com.content.my_springboot_project.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,8 +38,8 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public Result<FilePage> getFiles(FileRequestCondition fileRequestCondition) {
-        FilePage filePage = new FilePage();
+    public Result<FilePage<DisplayFile>> getFiles(FileRequestCondition fileRequestCondition) {
+        FilePage<DisplayFile> filePage = new FilePage<DisplayFile>();
         filePage.setPageSize(defaultPageSize);
         if (!fileRequestCondition.getIsFiltered()) {
             Pageable pageable = PageRequest.of(fileRequestCondition.getNeedPage().intValue() - 1, defaultPageSize);
@@ -47,20 +48,21 @@ public class FileServiceImpl implements FileService {
                 Log.info(getClass(), "获取文件列表为空");
                 return Result.success(null);
             }
-            List<DisplayFile> displayFiles = new ArrayList<>();
-            try {
-                for (FileInfoProjection fileInfo : allForDisplay.getContent()) {
-                    displayFiles.add(new DisplayFile(fileInfo));
+
+            List<DisplayFile> displayFiles = allForDisplay.getContent().parallelStream().map(f -> {
+                try {
+                    return new DisplayFile(f);
+                } catch (Exception e) {
+                    Log.error(getClass(), "获取文件列表加密上传者ID失败", e);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.error(getClass(), "获取文件列表加密上传者ID失败", e);
-            }
+                return null;
+            }).filter(Objects::nonNull).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+
             filePage.setResults(displayFiles);
             filePage.setCurrentPage(fileRequestCondition.getNeedPage());
 
-            filePage.setTotalPages((long)allForDisplay.getTotalPages());
-            //filePage.setLatestVersion(1L);
+            filePage.setTotalPages((long) allForDisplay.getTotalPages());
+            // filePage.setLatestVersion(1L);
             filePage.setLatestVersion(2L);
         } else {
             int offset = (fileRequestCondition.getNeedPage().intValue() - 1) * defaultPageSize;

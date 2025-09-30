@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.content.my_springboot_project.model.Result;
 import com.content.my_springboot_project.service.ImgService;
-import com.content.my_springboot_project.utils.Log;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -26,7 +25,6 @@ public class ImageController {
 
     @PostMapping("/getImage")
     public Result<String> getImage(@RequestBody  Map<String, String> body, HttpServletRequest request) throws IOException {
-        Log.info(getClass(), "前端请求的头像地址：{}", body.get("url"));
         return imgService.getImg(body.get("url"));
     }
 

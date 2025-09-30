@@ -2,6 +2,7 @@ package com.content.my_springboot_project.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.content.my_springboot_project.model.DisplayFile;
 import com.content.my_springboot_project.model.FilePage;
 import com.content.my_springboot_project.model.FileRequestCondition;
 import com.content.my_springboot_project.model.FileSearchCondition;
@@ -24,7 +25,7 @@ public class FileController {
     }
 
     @PostMapping("/getFiles")
-    public Result<FilePage> getFiles(@RequestBody FileRequestCondition fileRequestCondition) {
+    public Result<FilePage<DisplayFile>> getFiles(@RequestBody FileRequestCondition fileRequestCondition) {
         Log.info(getClass(), "获取文件列表条件：{}", fileRequestCondition);
         try {
             Thread.sleep(1000);
