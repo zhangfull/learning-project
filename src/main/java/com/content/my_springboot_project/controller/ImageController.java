@@ -1,0 +1,39 @@
+package com.content.my_springboot_project.controller;
+
+import java.io.IOException;
+import java.util.Map;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import com.content.my_springboot_project.model.Result;
+import com.content.my_springboot_project.service.ImgService;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+@RestController
+@RequestMapping("/img")
+public class ImageController {
+
+    private final ImgService imgService;
+
+    public ImageController(ImgService imgService) {
+        this.imgService = imgService;
+    }
+
+    @PostMapping("/getImage")
+    public Result<String> getImage(@RequestBody  Map<String, String> body, HttpServletRequest request) throws IOException {
+        return imgService.getImg(body.get("url"));
+    }
+
+    @PostMapping("/uploadImage")
+    public Result<String> uploadImage(@RequestParam("avatar") MultipartFile file, HttpServletRequest request) {
+        if (file.isEmpty()) {
+            return Result.error(1, "后端未收到文件");
+        }
+        return imgService.uploadImg(file);
+    }
+    
+}
