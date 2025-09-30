@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { openErrorNotice, openWarningNotice } from './noticeUtils';
-import { useUserStore } from '@/stores/user';
+import { openErrorNotice } from './noticeUtils';
 // 创建统一的 axios 实例
 const axiosInstance = axios.create();
 // 请求拦截器
@@ -30,14 +29,9 @@ axiosInstance.interceptors.request.use(
 // 响应拦截器
 axiosInstance.interceptors.response.use(
   async (response) => {
-    const userStore = useUserStore()
     if (response.data.code === 110) {
       console.log("异常：", response.data.message)
       openErrorNotice(response.data.message);
-    }
-    if (response.data.code === 43) {
-      await userStore.refreshLogin()
-      openWarningNotice('网络异常请刷新页面');
     }
     return response;
   },

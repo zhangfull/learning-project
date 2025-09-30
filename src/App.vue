@@ -6,6 +6,7 @@ const userStore = useUserStore()
 let timer: number | undefined
 
 onMounted(() => {
+  
   // 每隔 8分钟 执行一次
   timer = window.setInterval(() => {
     console.log("刷新登录认证", new Date().toLocaleTimeString())

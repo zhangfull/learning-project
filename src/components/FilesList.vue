@@ -118,7 +118,6 @@ onMounted(async () => {
                         placeholder="请输入搜索关键词" />
                 </div>
                 <div class="filters-container">
-                    
                     <!-- 资源类型选择框 -->
                     <label for="resourceType">资源类型:</label>
                     <select id="resourceType" v-model="fileSearchCondition.resourceType">

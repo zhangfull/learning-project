@@ -21,21 +21,23 @@ const loginFormRef = ref()
 const registerFormRef = ref()
 
 const formLoading = ref(false)
-async function login() {
+function login() {
   loginFormRef.value.validate(async (valid: boolean) => {
     if (!valid) {
       openErrorNotice('登陆失败')
       return
     }
     formLoading.value = true
-    const [success, message] = await handleLogin(loginInfo.value.emailOrUid, loginInfo.value.password);
-    if (success) {
-      emit('update:showLogin')
-      emit('loginSuccess')
-    } else {
-      openErrorNotice(message)
-    }
-    formLoading.value = false
+    handleLogin(loginInfo.value.emailOrUid, loginInfo.value.password).then(([success, message]) => {
+      if (success) {
+        emit('update:showLogin')
+        emit('loginSuccess')
+      } else {
+        openErrorNotice(message)
+      }
+    }).finally(() => {
+      formLoading.value = false
+    })
   })
 }
 
@@ -63,17 +65,17 @@ async function register() {
     }
 
     formLoading.value = true
-    const result = await handleRegister(registerInfo.value);
-    formLoading.value = false
-    if (result === 1) {
-      openErrorNotice('注册失败，邮箱已被使用')
-      return
-    } else if (result === 2) {
-      openErrorNotice('网络错误，请重试')
-      return
-    }
-    openSuccessNotice('注册成功')
-    loginOrRegister.value = 'login'
+    handleRegister(registerInfo.value).then(([success, message]) => {
+      if (success) {
+        openSuccessNotice('注册成功')
+        loginOrRegister.value = 'login'
+      } else {
+        openErrorNotice(message)
+      }
+    }).finally(() => {
+      formLoading.value = false
+    })
+
   })
 }
 </script>

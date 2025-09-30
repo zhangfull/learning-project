@@ -9,6 +9,7 @@ export const loginRequest = async (emailOrUid: string, password: string): Promis
         )
         console.log("后端返回的信息码：", response.data.code)              //调试
         console.log("后端返回的数据：", response.data.data)              //调试
+        console.log("后端返回的错误信息：", response.data.message)              //调试
         return [response.data.data, response.data.code]
     } catch (error) {
         // 取消上传失败，捕获异常
@@ -25,7 +26,7 @@ export const registerRequest = async (userInfo: RegisterInfo): Promise<number> =
         )
         console.log("后端返回的信息码：", response.data.code)
         console.log("后端返回的数据：", response.data.data)
-        return 0
+        return response.data.code
     } catch (error) {
         console.error('获取资源数据失败:', error)
         throw error;

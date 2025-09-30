@@ -53,7 +53,7 @@ export interface FilePage {
 export interface DetailFile extends DisplayFile {
   introduce: string
   imgs: string[]
-  downloadUrl: string
+  downloadUrl: string[]
   tags: string[]
 }
 
